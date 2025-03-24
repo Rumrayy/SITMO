@@ -1,15 +1,47 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
-
+import { useNavigation } from '@react-navigation/native';
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
 
-  const handleLogin = () => {
-    if (email && password) {
-      Alert.alert('Inicio de sesión exitoso', `Bienvenido ${email}`);
-    } else {
+  const handleLogin = async () => {
+    if (!email || !password) {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://192.168.0.6:44387/InicioSesion/Validar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombreUsuario: email,
+          contrasena: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        if (data.DebeCambiarContrasena) {
+          navigation.navigate('ChangePassword', { nombreUsuario: data.nombreUsuario, contrasena: data.contrasena});
+        } else if (data.rolId === 1) {
+          navigation.navigate('Admin');
+        } else if (data.rolId === 2) {
+          navigation.navigate('Bodega');
+        }else {
+          navigation.navigate('Repartidor');
+        }
+      } else {
+        Alert.alert('Credenciales incorrectas', 'Verifica tu usuario y contraseña.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error de conexión', 'No se pudo conectar al servidor.');
     }
   };
 
