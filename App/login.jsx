@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if (email && password) {
+    if (user && password) {
       Alert.alert('Inicio de sesión exitoso', `Bienvenido ${email}`);
     } else {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
@@ -16,22 +16,23 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
 
+      <Image
+        source={require('./imag/logo_grupo_carosa.jpg')} 
+        style={styles.topImage}
+      />
+
       <View style={styles.header}>
         <Text style={styles.title}>Bienvenido</Text>
         
       </View>
-      <Image
-        source={require('./imag/grup_carosa1.png')} 
-        style={styles.topImage}
-      />
 
       {/* Campos de entrada */}
-      <Text style={styles.label}>Email</Text>
+      <Text style={styles.label}>User</Text>
       <TextInput
         style={styles.input}
-        placeholder="your@email.com"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="user name"
+        value={user}
+        onChangeText={setUser}
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -54,11 +55,6 @@ const LoginScreen = () => {
         <Text style={styles.loginButtonText}>Sign In</Text>
       </TouchableOpacity>
 
-      
-      <Image
-        source={require('./imag/grup_carosa2.png')} 
-        style={styles.bottomImage}
-      />
     </View>
   );
 };
@@ -77,17 +73,18 @@ const styles = StyleSheet.create({
     marginBottom: 50, 
   },
   title: {
-    fontSize: 40, 
+    fontSize: 50, 
     fontWeight: 'bold', 
     textAlign: 'center', 
     flex: 1, 
   },
  
   topImage: {
-    width: 300, 
-    height: 150,
-    alignSelf: 'flex-start', // Alineación a la izquierda
-    marginBottom: 0, 
+    width: 250, 
+    height: 125,
+    alignSelf: 'center', // Alineación a la izquierda
+    marginBottom: 4, 
+    marginTop: -10,
   },
   bottomImage: {
     width: 300, 
