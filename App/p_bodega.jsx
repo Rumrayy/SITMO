@@ -1,23 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
-const PersonalbodegaScreen = () => {
-  
-  const trabajadores = [
-    {
-      id: '#RP_12345',
-      nombre: 'JUANA PEREZ',
-    },
-    {
-      id: '#RP_12542',
-      nombre: 'CARLO PEREZ',
-    },
-    {
-      id: '#RP_34521',
-      nombre: 'MARIA MORALES',
-    },
-    
+const PersonalBodegaScreen = () => {
+  const navigation = useNavigation();
+
+  const administradores = [
+    { id: '#RP_12345', nombre: 'JUANA PEREZ' },
+    { id: '#RP_12542', nombre: 'CARLO PEREZ' },
+    { id: '#RP_34521', nombre: 'MARIA MORALES' },
   ];
 
   return (
@@ -31,36 +23,70 @@ const PersonalbodegaScreen = () => {
       />
 
       <View style={styles.rolesContainer}>
-        <Text style={styles.roleItem}>Admin</Text>
-        <Text style={styles.roleItem}>Motorista</Text>
-        <Text style={styles.roleItem}>Bodega</Text>
+        <TouchableOpacity style={styles.roleItem}>
+          <Text style={styles.roleText}>Admin</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.roleItem}>
+          <Text style={styles.roleText}>Motorista</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.roleItem, styles.roleActive]}>
+          <Text style={styles.roleText}>Bodega</Text>
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.sectionTitle}>Lista de trabajadores en Bodega</Text>
+      <Text style={styles.sectionTitle}>Lista de Personal en Bodega</Text>
+      
       <ScrollView style={styles.listContainer}>
-       
-        {trabajadores.map((trabajador, index) => (
+        {administradores.map((admin, index) => (
           <View key={index} style={styles.listItem}>
             <View style={styles.listContent}>
-              <Text style={styles.listName}>{trabajador.nombre}</Text>
-              <Text style={styles.listId}>{trabajador.id}</Text>
+              <Text style={styles.listName}>{admin.nombre}</Text>
+              <Text style={styles.listId}>ID: {admin.id}</Text>
             </View>
             <TouchableOpacity style={styles.deleteButton}>
-              <Text style={styles.deleteButtonText}>Eliminar</Text>
+              <Icon name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
-
+      
       <TouchableOpacity style={styles.newButton}>
-        <Text style={styles.newButtonText}>Nuevo</Text>
+        <Icon name="plus" size={18} color="#FFF" style={styles.newButtonIcon} />
+        <Text style={styles.newButtonText}>Nuevo Administrador</Text>
       </TouchableOpacity>
 
       <View style={styles.bottomMenu}>
-        <Icon name="home" size={24} color="black" />
-        <Icon name="users" size={24} color="black" />
-        <Icon name="truck" size={24} color="black" />
-        <Icon name="exclamation-triangle" size={24} color="black" />
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Admin')}
+        >
+          <Icon name="home" size={24} color="black" />
+          <Text style={styles.menuText}>Inicio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Personal')}
+        >
+          <Icon name="users" size={24} color="black" />
+          <Text style={styles.menuText}>Personal</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Bodega')}
+        >
+          <Icon name="truck" size={24} color="black" />
+          <Text style={styles.menuText}>Bodega</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Advertencia')}
+        >
+          <Icon name="exclamation-triangle" size={24} color="black" />
+          <Text style={styles.menuText}>Advertencias</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -76,7 +102,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 50,
+    marginTop: 20,
     marginBottom: 20,
   },
   searchInput: {
@@ -86,6 +112,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
+    backgroundColor: '#f9f9f9',
   },
   rolesContainer: {
     flexDirection: 'row',
@@ -93,21 +120,31 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   roleItem: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'black',
+    flex: 1,
+    marginHorizontal: 4,
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 8,
+    padding: 10,
     borderRadius: 8,
-    textAlign: 'center',
+    alignItems: 'center',
+  },
+  roleActive: {
+    backgroundColor: '#f0f0f0',
+    borderColor: 'black',
+  },
+  roleText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: 'black',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: '#333',
   },
   listContainer: {
+    flex: 1,
     marginBottom: 20,
   },
   listItem: {
@@ -126,30 +163,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: '#333',
   },
   listId: {
     fontSize: 14,
     color: '#666',
   },
   deleteButton: {
-    backgroundColor: 'black',
     padding: 8,
-    borderRadius: 4,
-  },
-  deleteButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
   },
   newButton: {
+    flexDirection: 'row',
     backgroundColor: 'black',
-    padding: 12,
+    padding: 15,
     borderRadius: 8,
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
   },
+  newButtonIcon: {
+    marginRight: 10,
+  },
   newButtonText: {
-    color: '#fff',
+    color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -159,7 +195,16 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#ccc',
     paddingTop: 10,
+    paddingBottom: 10,
+  },
+  menuItem: {
+    alignItems: 'center',
+  },
+  menuText: {
+    fontSize: 12,
+    color: 'black',
+    marginTop: 4,
   },
 });
 
-export default PersonalbodegaScreen;
+export default PersonalBodegaScreen;
