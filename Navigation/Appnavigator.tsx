@@ -18,7 +18,6 @@ import MapScreen from '../App/mapa';
 import FacturasScreen from '../App/factura';  
 import FacturaDetalleScreen from '../App/factura_detalle';  
 
-
 // Definir los tipos de las rutas
 export type RootStackParamList = {
   Login: undefined;
@@ -29,11 +28,11 @@ export type RootStackParamList = {
   PersonalMotorista: undefined;
   NuevoUsuario: undefined;
   Ubicacion: undefined;
-  Bodega: undefined;
-  Advertencia: undefined;
   AsignarRepartidor: { factura: object };  // Recibe la factura completa
   Mapa: { direccion: string };
   Facturas: undefined;
+  Advertencia: undefined;
+  Bodega: undefined;
   FacturaDetalle: { factura: object };  // Recibe la factura completa
 };
 
