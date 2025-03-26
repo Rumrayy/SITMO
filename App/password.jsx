@@ -5,8 +5,17 @@ const ChangePasswordScreen = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  const requirements = [
+    { text: 'Mínimo 8 caracteres', isValid: newPassword.length >= 8 },
+    { text: 'Al menos una mayúscula', isValid: /[A-Z]/.test(newPassword) },
+    { text: 'Al menos un número', isValid: /[0-9]/.test(newPassword) },
+    { text: 'Un carácter especial', isValid: /[!@#$%^&*(),.?":{}|<>]/.test(newPassword) }
+  ];
+
+  const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0;
+
   const handleChangePassword = () => {
-    if (newPassword && confirmPassword && newPassword === confirmPassword) {
+    if (newPassword && confirmPassword && passwordsMatch) {
       Alert.alert('Contraseña cambiada', 'Tu contraseña ha sido actualizada exitosamente.');
     } else {
       Alert.alert('Error', 'Por favor, completa todos los campos y asegúrate de que las contraseñas coincidan.');
@@ -43,13 +52,18 @@ const ChangePasswordScreen = () => {
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
+      
+      <Text style={[styles.requirement, passwordsMatch ? styles.validRequirement : styles.invalidRequirement]}>
+        {passwordsMatch ? '✔' : '✖'} Las contraseñas coinciden
+      </Text>
 
       <View style={styles.requirementsContainer}>
         <Text style={styles.requirementsTitle}>La contraseña debe contener:</Text>
-        <Text style={styles.requirement}>✔ Mínimo 8 caracteres</Text>
-        <Text style={styles.requirement}>✔ Al menos una mayúscula</Text>
-        <Text style={styles.requirement}>✔ Al menos un número</Text>
-        <Text style={styles.requirement}>✔ Un carácter especial</Text>
+        {requirements.map((req, index) => (
+          <Text key={index} style={[styles.requirement, req.isValid && styles.validRequirement]}>
+            {req.isValid ? '✔' : '✖'} {req.text}
+          </Text>
+        ))}
       </View>
 
       <TouchableOpacity style={styles.changePasswordButton} onPress={handleChangePassword}>
@@ -70,7 +84,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     alignSelf: 'center', 
-    marginBottom: 20, // Espacio debajo de la imagen
+    marginBottom: 20,
   },
   title: {
     fontSize: 24,
@@ -107,7 +121,13 @@ const styles = StyleSheet.create({
   requirement: {
     fontSize: 14,
     marginBottom: 4,
-    color: '#666',
+    color: 'red',
+  },
+  validRequirement: {
+    color: 'green',
+  },
+  invalidRequirement: {
+    color: 'red',
   },
   changePasswordButton: {
     backgroundColor: 'black',

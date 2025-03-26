@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(''); 
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if (email && password) {
-      Alert.alert('Inicio de sesión exitoso', `Bienvenido ${email}`);
+    if (username && password) {
+      Alert.alert('Inicio de sesión exitoso', `Bienvenido ${username}`);
+      
     } else {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
     }
@@ -15,45 +16,40 @@ const LoginScreen = () => {
 
   return (
     <View style={styles.container}>
-
       <View style={styles.header}>
         <Text style={styles.title}>Bienvenido</Text>
-        
       </View>
+      
       <Image
         source={require('./imag/grup_carosa1.png')} 
         style={styles.topImage}
       />
 
-      {/* Campos de entrada */}
-      <Text style={styles.label}>Email</Text>
+      <Text style={styles.label}>Usuario</Text>
       <TextInput
         style={styles.input}
-        placeholder="your@email.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
+        placeholder="Nombre de usuario"
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
       />
 
-      <Text style={styles.label}>Password</Text>
+      <Text style={styles.label}>Contraseña</Text>
       <TextInput
         style={styles.input}
-        placeholder="......"
+        placeholder="••••••"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
 
-      <TouchableOpacity onPress={() => Alert.alert('Contacta soporte', 'Por favor, contacta a soporte para recuperar tu contraseña.')}>
-        <Text style={styles.forgotPassword}>¿Olvidaste tu contraseña? Contacta soporte</Text>
+      <TouchableOpacity onPress={() => Alert.alert('Soporte', 'Contacta al equipo de soporte para recuperar tu contraseña')}>
+        <Text style={styles.forgotPassword}>¿Olvidaste tu contraseña?</Text>
       </TouchableOpacity>
 
-      {/* Botón de inicio de sesión */}
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.loginButtonText}>Sign In</Text>
+        <Text style={styles.loginButtonText}>Iniciar sesión</Text>
       </TouchableOpacity>
-
       
       <Image
         source={require('./imag/grup_carosa2.png')} 
@@ -63,6 +59,7 @@ const LoginScreen = () => {
   );
 };
 
+// Tus estilos permanecen igual
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -82,17 +79,16 @@ const styles = StyleSheet.create({
     textAlign: 'center', 
     flex: 1, 
   },
- 
   topImage: {
     width: 300, 
     height: 150,
-    alignSelf: 'flex-start', // Alineación a la izquierda
+    alignSelf: 'flex-start',
     marginBottom: 0, 
   },
   bottomImage: {
     width: 300, 
     height: 150,
-    alignSelf: 'flex-start', // Alineación a la derecha
+    alignSelf: 'flex-start',
     marginTop: 0,
   },
   label: {

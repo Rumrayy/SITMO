@@ -1,30 +1,28 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { useNavigation } from '@react-navigation/native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; 
 
 const AdminScreen = () => {
+  const navigation = useNavigation(); 
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Bienvenido</Text>
 
       {/* Mapa de Google Maps */}
       <View style={styles.mapContainer}>
-      <View style={styles.mapContainer}>
-      <View style={styles.mapContainer}>
-  <MapView
-    style={styles.map}
-    provider={PROVIDER_GOOGLE} 
-    initialRegion={{
-      latitude: 13.7942, // Latitud de El Salvador
-      longitude: -88.8965, // Longitud de El Salvador
-      latitudeDelta: 1.5, // Ajusta el zoom 
-      longitudeDelta: 1.5, // Ajusta el zoom 
-    }}
-  />
-</View>
-
-</View>
+        <MapView
+          style={styles.map}
+          provider={PROVIDER_GOOGLE} 
+          initialRegion={{
+            latitude: 13.7942, // Latitud de El Salvador
+            longitude: -88.8965, // Longitud de El Salvador
+            latitudeDelta: 1.5, // Ajusta el zoom 
+            longitudeDelta: 1.5, // Ajusta el zoom 
+          }}
+        />
       </View>
 
       <View style={styles.statsContainer}>
@@ -58,32 +56,40 @@ const AdminScreen = () => {
         </View>
       </ScrollView>
 
-     
-<View style={styles.bottomMenu}>
-  <View style={styles.menuItem}>
-    <Icon name="home" size={24} color="black" />
-    <Text style={styles.menuText}>Inicio</Text>
-  </View>
+      <View style={styles.bottomMenu}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Admin')}
+        >
+          <Icon name="home" size={24} color="black" />
+          <Text style={styles.menuText}>Inicio</Text>
+        </TouchableOpacity>
 
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Personal')}
+        >
+          <Icon name="users" size={24} color="black" />
+          <Text style={styles.menuText}>Personal</Text>
+        </TouchableOpacity>
 
-  <View style={styles.menuItem}>
-    <Icon name="users" size={24} color="black" />
-    <Text style={styles.menuText}>Personal</Text>
-  </View>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Bodega')}
+        >
+          <Icon name="truck" size={24} color="black" />
+          <Text style={styles.menuText}>Bodega</Text>
+        </TouchableOpacity>
 
-
-  <View style={styles.menuItem}>
-    <Icon name="truck" size={24} color="black" />
-    <Text style={styles.menuText}>Bodega</Text>
-  </View>
-
-
-  <View style={styles.menuItem}>
-    <Icon name="exclamation-triangle" size={24} color="black" />
-    <Text style={styles.menuText}>Advertencias</Text>
-  </View>
-</View>
-</View>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Advertencia')}
+        >
+          <Icon name="exclamation-triangle" size={24} color="black" />
+          <Text style={styles.menuText}>Advertencias</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
@@ -159,13 +165,6 @@ const styles = StyleSheet.create({
   },
   statusPending: {
     color: '#FF0000',
-  },
-  bottomMenu: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    paddingTop: 10,
   },
   bottomMenu: {
     flexDirection: 'row',

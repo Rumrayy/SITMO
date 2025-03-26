@@ -43,9 +43,15 @@ const PersonalMotoristaScreen = () => {
       />
 
       <View style={styles.rolesContainer}>
-        <Text style={styles.roleItem}>Admin</Text>
-        <Text style={styles.roleItem}>Motorista</Text>
-        <Text style={styles.roleItem}>Bodega</Text>
+        <TouchableOpacity style={styles.roleItem} >
+          <Text style={styles.roleText}>Admin</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.roleItem, styles.roleActive]}>
+          <Text style={styles.roleText}>Motorista</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.roleItem}>
+          <Text style={styles.roleText}>Bodega</Text>
+        </TouchableOpacity>
       </View>
 
 
@@ -87,31 +93,44 @@ const PersonalMotoristaScreen = () => {
         <Text style={styles.newButtonText}>Nuevo</Text>
       </TouchableOpacity>
 
-      <View style={styles.bottomMenu}>
- 
-  <View style={styles.menuItem}>
-    <Icon name="home" size={24} color="black" />
-    <Text style={styles.menuText}>Inicio</Text>
-  </View>
-
-  <View style={styles.menuItem}>
-    <Icon name="users" size={24} color="black" />
-    <Text style={styles.menuText}>Personal</Text>
-  </View>
-
-  <View style={styles.menuItem}>
-    <Icon name="truck" size={24} color="black" />
-    <Text style={styles.menuText}>Bodega</Text>
-  </View>
-
-  <View style={styles.menuItem}>
-    <Icon name="exclamation-triangle" size={24} color="black" />
-    <Text style={styles.menuText}>Advertencias</Text>
-  </View>
-</View>
-    </View>
-  );
-};
+      
+            <View style={styles.bottomMenu}>
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Admin')}
+              >
+                <Icon name="home" size={24} color="black" />
+                <Text style={styles.menuText}>Inicio</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Personal')}
+              >
+                <Icon name="users" size={24} color="black" />
+                <Text style={styles.menuText}>Personal</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Bodega')}
+              >
+                <Icon name="truck" size={24} color="black" />
+                <Text style={styles.menuText}>Bodega</Text>
+              </TouchableOpacity>
+      
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Advertencia')}
+              >
+                <Icon name="exclamation-triangle" size={24} color="black" />
+                <Text style={styles.menuText}>Advertencias</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      };
+      
 
 const styles = StyleSheet.create({
   container: {
