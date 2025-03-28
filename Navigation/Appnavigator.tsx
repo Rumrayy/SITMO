@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import LoginScreen from '../App/login';
 import ChangePasswordScreen from '../App/password';
 import AdminScreen from '../App/inicioadmin_p';
-import PersonalScreen from '../App/p_admin ';
+import PersonalScreen from '../App/p_admin';
 import PersonalBodegaScreen from '../App/p_bodega';
 import PersonalMotoristaScreen from '../App/p_motorista';
 import NuevoUsuarioScreen from '../App/new_usuario';
@@ -17,31 +17,17 @@ import AsignarRepartidorScreen from '../App/b_asignar_repartidor';
 import MapScreen from '../App/mapa';
 import FacturasScreen from '../App/factura';  
 import FacturaDetalleScreen from '../App/factura_detalle';  
+import DetalleEntregaScreen from '../App/detalle_entrega';
+import FinalizarEntregaScreen from '../App/finalizar_entrega_form';
+import ErrorEntregaScreen from '../App/cancelar_entrega_form';
+import Dashboard from '../App/dashboard_repartidor';
 
-// Definir los tipos de las rutas
-export type RootStackParamList = {
-  Login: undefined;
-  ChangePassword: undefined;
-  Admin: undefined;
-  Personal: undefined;
-  PersonalBodega: undefined;
-  PersonalMotorista: undefined;
-  NuevoUsuario: undefined;
-  Ubicacion: undefined;
-  AsignarRepartidor: { factura: object };  // Recibe la factura completa
-  Mapa: { direccion: string };
-  Facturas: undefined;
-  Advertencia: undefined;
-  Bodega: undefined;
-  FacturaDetalle: { factura: object };  // Recibe la factura completa
-};
+const Stack = createStackNavigator();
 
-const Stack = createStackNavigator<RootStackParamList>();
-
-const AppNavigator: React.FC = () => {
+const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Admin">
+      <Stack.Navigator initialRouteName="Dashboard">
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Iniciar Sesión' }} /> 
         <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Cambiar Contraseña' }} />
         <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Panel Admin' }} />
@@ -51,12 +37,15 @@ const AppNavigator: React.FC = () => {
         <Stack.Screen name="NuevoUsuario" component={NuevoUsuarioScreen} options={{ title: 'Nuevo Usuario' }} />
         <Stack.Screen name="Ubicacion" component={LocationComponent} options={{ title: 'Ubicación' }} />
         <Stack.Screen name="Bodega" component={BodegaScreen} options={{ title: 'Bodega' }} />
-        <Stack.Screen name="Advertencia" component={AdvertenciaScreen} options={{ title: 'Adevertencia' }} />
+        <Stack.Screen name="Advertencia" component={AdvertenciaScreen} options={{ title: 'Advertencia' }} />
         <Stack.Screen name="AsignarRepartidor" component={AsignarRepartidorScreen} options={{ title: 'Asignar Repartidor' }} />
         <Stack.Screen name="Mapa" component={MapScreen} options={{ title: 'Ver en Mapa' }} />
         <Stack.Screen name="Facturas" component={FacturasScreen} options={{ title: 'Facturas' }} />
         <Stack.Screen name="FacturaDetalle" component={FacturaDetalleScreen} options={{ title: 'Detalles de Factura' }} />
-        
+        <Stack.Screen name="DetalleEntrega" component={DetalleEntregaScreen} options={{ title: 'Detalle de Entrega' }} />
+        <Stack.Screen name="FinalizarEntrega" component={FinalizarEntregaScreen} options={{ title: 'Finalizar Entrega' }} />
+        <Stack.Screen name="ErrorEntrega" component={ErrorEntregaScreen} options={{ title: 'Error de Entrega' }} />
+        <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
