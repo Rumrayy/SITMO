@@ -113,10 +113,10 @@ const PersonalMotoristaScreen = () => {
       
               <TouchableOpacity 
                 style={styles.menuItem}
-                onPress={() => navigation.navigate('Bodega')}
+                onPress={() => navigation.navigate('Facturas')}
               >
                 <Icon name="truck" size={24} color="black" />
-                <Text style={styles.menuText}>Bodega</Text>
+                <Text style={styles.menuText}>Facturas</Text>
               </TouchableOpacity>
       
               <TouchableOpacity 

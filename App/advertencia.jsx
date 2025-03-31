@@ -1,98 +1,136 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
-const AdvertenciaScreen = () => {
+const AlertasScreen = () => {
   const navigation = useNavigation();
+
+  // Datos de alertas
+  const alertas = [
+    {
+      id: 1241,
+      problema: "Mercancía incompleta",
+      detalles: "Faltan 2 cajas del pedido original. Cliente reportó faltante al momento de la entrega."
+    },
+    {
+      id: 15,
+      problema: "Daño en mercancía",
+      detalles: "Faltan 2 cajas del pedido original. Cliente reportó faltante al momento de la entrega."
+    }
+  ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Advertencias</Text>
       
-      {/* Contenido principal de la pantalla */}
-      <View style={styles.content}>
-        <Text style={styles.subtitle}>Lista de advertencias</Text>
-        {/* Aquí puedes agregar tu lista de advertencias */}
-      </View>
-
-      
-      
-            <View style={styles.bottomMenu}>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Admin')}
-              >
-                <Icon name="home" size={24} color="black" />
-                <Text style={styles.menuText}>Inicio</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Personal')}
-              >
-                <Icon name="users" size={24} color="black" />
-                <Text style={styles.menuText}>Personal</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Bodega')}
-              >
-                <Icon name="truck" size={24} color="black" />
-                <Text style={styles.menuText}>Bodega</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Advertencia')}
-              >
-                <Icon name="exclamation-triangle" size={24} color="black" />
-                <Text style={styles.menuText}>Advertencias</Text>
-              </TouchableOpacity>
-            </View>
+      <ScrollView style={styles.alertContainer}>
+        {alertas.map((alerta) => (
+          <View key={alerta.id} style={styles.alertCard}>
+            <Text style={styles.alertTitle}>Entrega #{alerta.id}</Text>
+            <Text style={styles.alertProblem}>Problema: {alerta.problema}</Text>
+            <Text style={styles.alertDetails}>Detalles: {alerta.detalles}</Text>
           </View>
-        );
-      };
+        ))}
+      </ScrollView>
+
+      {/* Footer con navegación */}
+      <View style={styles.bottomMenu}>
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Admin')}
+        >
+          <Icon name="home" size={24} color="#333" />
+          <Text style={styles.menuText}>Inicio</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Personal')}
+        >
+          <Icon name="users" size={24} color="#333" />
+          <Text style={styles.menuText}>Personal</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Facturas')}
+        >
+          <Icon name="truck" size={24} color="#333" />
+          <Text style={styles.menuText}>Bodega</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.menuItem}
+          onPress={() => navigation.navigate('Advertencia')}
+        >
+          <Icon name="exclamation-triangle" size={24} color="#0066cc" />
+          <Text style={[styles.menuText, { color: '#0066cc' }]}>Alertas</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
-  title: {
+  header: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 50,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
   },
-  content: {
+  alertContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 15,
   },
-  subtitle: {
+  alertCard: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  alertTitle: {
     fontSize: 18,
-    color: '#666',
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  alertProblem: {
+    fontSize: 16,
+    color: '#d32f2f',
+    marginBottom: 8,
+  },
+  alertDetails: {
+    fontSize: 14,
+    color: '#555',
+    lineHeight: 20,
   },
   bottomMenu: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    paddingVertical: 12,
+    backgroundColor: 'white',
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    paddingTop: 10,
-    paddingBottom: 10,
+    borderTopColor: '#ddd',
   },
   menuItem: {
     alignItems: 'center',
   },
   menuText: {
     fontSize: 12,
-    color: 'black',
     marginTop: 4,
+    color: '#333',
   },
 });
 
-export default AdvertenciaScreen;
+export default AlertasScreen;
