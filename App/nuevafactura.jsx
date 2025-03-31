@@ -51,7 +51,7 @@ const IngresoEmpresa = () => {
       <Text style={styles.title}>Agregar Factura</Text>
       <TextInput
         style={styles.input}
-        placeholder="Valor del pedido"
+        placeholder="Numero del pedido"
         keyboardType="numeric"
         value={factura.pedido}
         onChangeText={(text) => setFactura({ ...factura, pedido: text })}
