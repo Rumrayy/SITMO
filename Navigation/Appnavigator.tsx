@@ -21,13 +21,14 @@ import DetalleEntregaScreen from '../App/detalle_entrega';
 import FinalizarEntregaScreen from '../App/finalizar_entrega_form';
 import ErrorEntregaScreen from '../App/cancelar_entrega_form';
 import Dashboard from '../App/dashboard_repartidor';
+import NuevaFacturaScreen from '../App/nuevafactura'; 
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Dashboard">
+      <Stack.Navigator initialRouteName="NuevaFactura">
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Iniciar Sesión' }} /> 
         <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Cambiar Contraseña' }} />
         <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Panel Admin' }} />
@@ -46,6 +47,7 @@ const AppNavigator = () => {
         <Stack.Screen name="FinalizarEntrega" component={FinalizarEntregaScreen} options={{ title: 'Finalizar Entrega' }} />
         <Stack.Screen name="ErrorEntrega" component={ErrorEntregaScreen} options={{ title: 'Error de Entrega' }} />
         <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard' }} />
+        <Stack.Screen name="NuevaFactura" component={NuevaFacturaScreen} options={{ title: 'Nueva Factura' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
