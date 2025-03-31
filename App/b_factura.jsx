@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const facturas = [
   { id: '1', titulo: 'Factura #1', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
@@ -9,7 +10,24 @@ const facturas = [
   { id: '4', titulo: 'Factura #4', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
 ];
 
-const FacturasScreen = ({ navigation }) => {
+const FacturasScreen = ({ navigation, route }) => {
+  const [userRole, setUserRole] = useState('bodega'); 
+
+  useEffect(() => {
+    const getUserRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem('userRole');
+        if (role) {
+          setUserRole(role.toLowerCase()); 
+        }
+      } catch (error) {
+        console.error('Error al obtener el rol:', error);
+      }
+    };
+
+    getUserRole();
+  }, []);
+
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
@@ -21,53 +39,63 @@ const FacturasScreen = ({ navigation }) => {
     </TouchableOpacity>
   );
 
+
+  const showFooter = ['admin', 'bodega'].includes(userRole);
+
   return (
     <View style={styles.container}>
-      
       <FlatList
         data={facturas}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={showFooter ? styles.listContentAdmin : styles.listContent}
       />
       
-      {/* Footer de navegación */}
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Admin')}
-        >
-          <Icon name="home" size={24} color="#333" />
-          <Text style={styles.menuText}>Inicio</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Personal')}
-        >
-          <Icon name="users" size={24} color="#333" />
-          <Text style={styles.menuText}>Personal</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.menuItem, styles.activeMenuItem]}
-          onPress={() => navigation.navigate('Facturas')}
-        >
-          <Icon name="truck" size={24} color="#0066cc" />
-          <Text style={[styles.menuText, styles.activeMenuText]}>Bodega</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Advertencia')}
-        >
-          <Icon name="exclamation-triangle" size={24} color="#333" />
-          <Text style={styles.menuText}>Alertas</Text>
-        </TouchableOpacity>
-      </View>
+      {showFooter && (
+        <View style={styles.bottomMenu}>
+          {userRole === 'admin' && (
+            <>
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Admin')}
+              >
+                <Icon name="home" size={24} color="#333" />
+                <Text style={styles.menuText}>Inicio</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.menuItem}
+                onPress={() => navigation.navigate('Personal')}
+              >
+                <Icon name="users" size={24} color="#333" />
+                <Text style={styles.menuText}>Personal</Text>
+              </TouchableOpacity>
+            </>
+          )}
+          {userRole === 'admin' && (
+          <TouchableOpacity 
+            style={[styles.menuItem, styles.activeMenuItem]}
+            onPress={() => navigation.navigate('Facturas')}
+          >
+            <Icon name="truck" size={24} color="#0066cc" />
+            <Text style={[styles.menuText, styles.activeMenuText]}>Bodega</Text>
+          </TouchableOpacity>
+          )}
+          {userRole === 'admin' && (
+            <TouchableOpacity 
+              style={styles.menuItem}
+              onPress={() => navigation.navigate('Advertencia')}
+            >
+              <Icon name="exclamation-triangle" size={24} color="#333" />
+              <Text style={styles.menuText}>Alertas</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -84,7 +112,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 15,
-    paddingBottom: 70, // Espacio para el footer
+  },
+  listContentAdmin: {
+    padding: 15,
+    paddingBottom: 70, // Espacio para el footer solo cuando es admin
   },
   card: {
     backgroundColor: '#fff',

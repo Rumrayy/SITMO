@@ -33,7 +33,6 @@ const AlertasScreen = () => {
         ))}
       </ScrollView>
 
-      {/* Footer con navegación */}
       <View style={styles.bottomMenu}>
         <TouchableOpacity 
           style={styles.menuItem}

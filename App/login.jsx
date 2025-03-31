@@ -70,7 +70,6 @@ const LoginScreen = ({ navigation }) => {
           'userRole'
         ]);
         
-        // Verificamos que todos los datos existan y sean válidos
         if (userToken[1] === 'authenticated' && userEmail[1] && userRole[1]) {
           if (validUsers[userEmail[1]] && validUsers[userEmail[1]].role === userRole[1]) {
             navigation.navigate(validUsers[userEmail[1]].screen);
@@ -151,7 +150,6 @@ const LoginScreen = ({ navigation }) => {
   );
 };
 
-// Tus estilos permanecen igual...
 const styles = StyleSheet.create({
   container: {
     flex: 1,
