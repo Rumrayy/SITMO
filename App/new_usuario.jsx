@@ -1,8 +1,23 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
 const NuevoUsuarioScreen = () => {
+  const navigation = useNavigation();
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -29,63 +44,105 @@ const NuevoUsuarioScreen = () => {
   };
 
   const handleCreateUser = () => {
-    if (!validatePhone()) {
-      return;
-    }
+    if (!validatePhone()) return;
     console.log('Usuario creado:', { firstName, lastName, email, tempPassword, role, username, phone });
     Alert.alert('Éxito', 'Usuario creado exitosamente');
   };
 
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
+      >
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          
           <View style={styles.form}>
-            <Text style={styles.label}>Nombre de usuario:</Text>
-            <TextInput style={styles.input} placeholder="Enter username" value={username} onChangeText={setUsername} />
+            <Text style={styles.label}>Usuario:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Usuario"
+              value={username}
+              onChangeText={setUsername}
+            />
 
             <Text style={styles.label}>Nombres:</Text>
-            <TextInput style={styles.input} placeholder="Enter first name" value={firstName} onChangeText={setFirstName} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nombres"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
 
             <Text style={styles.label}>Apellidos:</Text>
-            <TextInput style={styles.input} placeholder="Enter last name" value={lastName} onChangeText={setLastName} />
+            <TextInput
+              style={styles.input}
+              placeholder="Apellidos"
+              value={lastName}
+              onChangeText={setLastName}
+            />
 
             <Text style={styles.label}>Email:</Text>
-            <TextInput style={styles.input} placeholder="Enter email address" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+            <TextInput
+              style={styles.input}
+              placeholder="Correo"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
 
             <Text style={styles.label}>Teléfono:</Text>
-            <TextInput style={styles.input} placeholder="####-####" value={phone} onChangeText={formatPhoneNumber} keyboardType="numeric" maxLength={9} />
+            <TextInput
+              style={styles.input}
+              placeholder="####-####"
+              value={phone}
+              onChangeText={formatPhoneNumber}
+              keyboardType="numeric"
+              maxLength={9}
+            />
 
-            <Text style={styles.label}>Contraseña temporal:</Text>
-            <TextInput style={styles.input} placeholder="Enter temporary password" value={tempPassword} onChangeText={setTempPassword} secureTextEntry />
+            <Text style={styles.label}>Contraseña:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Temporal"
+              value={tempPassword}
+              onChangeText={setTempPassword}
+              secureTextEntry
+            />
 
             <Text style={styles.label}>Rol:</Text>
-            <Picker selectedValue={role} style={styles.input} onValueChange={(itemValue) => setRole(itemValue)}>
-              <Picker.Item label="Selecciona un rol" value="" />
-              <Picker.Item label="Administrador" value="admin" />
-              <Picker.Item label="Bodega" value="bodega" />
-              <Picker.Item label="Motorista" value="motorista" />
-            </Picker>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={role}
+                onValueChange={(itemValue) => setRole(itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="Selecciona un rol" value="" />
+                <Picker.Item label="Administrador" value="admin" />
+                <Picker.Item label="Bodega" value="bodega" />
+                <Picker.Item label="Motorista" value="motorista" />
+              </Picker>
+            </View>
+
+            {/* Botones uno debajo del otro */}
+            <View style={styles.buttonStack}>
+              <TouchableOpacity style={styles.button} onPress={handleCreateUser}>
+                <Text style={styles.buttonText}>Crear</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, styles.cancelButton]}
+                onPress={handleCancel}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+
           </View>
-
         </ScrollView>
-
-        {/* Botón fijo en la parte inferior */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreateUser}>
-            <Text style={styles.createButtonText}>Crear</Text>
-
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.createButton} onPress={handleCreateUser}>
-            <Text style={styles.createButtonText}>Cancelar</Text>
-
-          </TouchableOpacity>
-        </View>
-
       </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   );
@@ -97,40 +154,54 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingBottom: 20,
   },
   form: {
-    marginTop: 15,
+    marginTop: 10,
   },
   label: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: 'bold',
-    marginBottom: 6,
+    marginBottom: 4,
+    color: '#333',
   },
   input: {
-    height: 40,
+    height: 36,
     borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+    fontSize: 13,
+  },
+  pickerContainer: {
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 6,
     marginBottom: 12,
+    overflow: 'hidden',
   },
-  buttonContainer: {
-    padding: 10,
-    borderTopWidth: 1,
-    borderTopColor: 'transparent',
-    backgroundColor:'transparent',
+  picker: {
+    height: 36,
+    fontSize: 13,
   },
-  createButton: {
+  buttonStack: {
+    marginTop: 10,
+  },
+  button: {
     backgroundColor: 'black',
-    padding: 12,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 6,
     alignItems: 'center',
+    marginBottom: 10,
   },
-  createButtonText: {
+  cancelButton: {
+    backgroundColor: '#666',
+  },
+  buttonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
   },
 });

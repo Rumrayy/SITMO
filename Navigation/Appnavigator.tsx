@@ -28,7 +28,7 @@ const Stack = createStackNavigator();
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="NuevaFactura">
+      <Stack.Navigator initialRouteName="Bodega">
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Iniciar Sesión' }} /> 
         <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Cambiar Contraseña' }} />
         <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Panel Admin' }} />

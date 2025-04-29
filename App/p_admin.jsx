@@ -14,8 +14,6 @@ const PersonalScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Personal</Text>
-
       <TextInput
         style={styles.searchInput}
         placeholder="Buscar usuarios..."
@@ -50,9 +48,13 @@ const PersonalScreen = () => {
         ))}
       </ScrollView>
       
-      <TouchableOpacity style={styles.newButton}>
+      {/* Botón para ir a la pantalla NuevoUsuario */}
+      <TouchableOpacity
+        style={styles.newButton}
+        onPress={() => navigation.navigate('NuevoUsuario')}
+      >
         <Icon name="plus" size={18} color="#FFF" style={styles.newButtonIcon} />
-        <Text style={styles.newButtonText}>Nuevo Administrador</Text>
+        <Text style={styles.newButtonText}>Nuevo</Text>
       </TouchableOpacity>
 
       <View style={styles.bottomMenu}>
@@ -97,13 +99,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 20,
   },
   searchInput: {
     height: 40,

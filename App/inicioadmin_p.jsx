@@ -104,10 +104,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 20,
-    marginTop: 50,
+    
   },
   mapContainer: {
-    height: 200, 
+    height: 150, 
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 20,
