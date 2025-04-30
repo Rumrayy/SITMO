@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; 
+import { View, Text, S, FlatList, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
 const advertencias = [
@@ -14,57 +14,55 @@ const advertencias = [
   { id: '8', titulo: 'Cancelación #8', motivo: 'Problemas en la ruta de entrega', fecha: '20 Abr 2025' },
 ];
 
-const AlertasScreen = () => {
+const AdvertenciaScreen = () => {
   const navigation = useNavigation();
+
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.cardTitle}>{item.titulo}</Text>
+        <Text style={styles.cardMotivo}>{item.motivo}</Text>
+        <Text style={styles.cardFecha}>Fecha: {item.fecha}</Text>
+      </View>
+      <Icon name="exclamation-triangle" size={24} color="#dc3545" style={{ marginLeft: 10 }} />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Advertencias</Text>
-      
-      {/* Contenido principal de la pantalla */}
-      <View style={styles.content}>
-        <Text style={styles.subtitle}>Lista de advertencias</Text>
-        {/* Aquí puedes agregar tu lista de advertencias */}
-      </View>
+     
 
-      
-      
-            <View style={styles.bottomMenu}>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Admin')}
-              >
-                <Icon name="home" size={24} color="black" />
-                <Text style={styles.menuText}>Inicio</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Personal')}
-              >
-                <Icon name="users" size={24} color="black" />
-                <Text style={styles.menuText}>Personal</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Bodega')}
-              >
-                <Icon name="truck" size={24} color="black" />
-                <Text style={styles.menuText}>Bodega</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Advertencia')}
-              >
-                <Icon name="exclamation-triangle" size={24} color="black" />
-                <Text style={styles.menuText}>Advertencias</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        );
-      };
+      <FlatList
+        data={advertencias}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
+
+      <View style={styles.bottomMenu}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Admin')}>
+          <Icon name="home" size={24} color="black" />
+          <Text style={styles.menuText}>Inicio</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Personal')}>
+          <Icon name="users" size={24} color="black" />
+          <Text style={styles.menuText}>Personal</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Bodega')}>
+          <Icon name="truck" size={24} color="black" />
+          <Text style={styles.menuText}>Bodega</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Advertencia')}>
+          <Icon name="exclamation-triangle" size={24} color="black" />
+          <Text style={styles.menuText}>Advertencias</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -75,17 +73,38 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 20,
     marginTop: 50,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 10,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#666',
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  card: {
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#721c24',
+  },
+  cardMotivo: {
+    fontSize: 14,
+    color: '#721c24',
+  },
+  cardFecha: {
+    fontSize: 12,
+    color: '#721c24',
+    marginTop: 4,
   },
   bottomMenu: {
     flexDirection: 'row',
