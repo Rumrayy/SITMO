@@ -11,11 +11,10 @@ import PersonalBodegaScreen from '../App/p_bodega';
 import PersonalMotoristaScreen from '../App/p_motorista';
 import NuevoUsuarioScreen from '../App/new_usuario';
 import LocationComponent from '../App/p_admin_ubicacion';
-import BodegaScreen from '../App/bodega';
 import AdvertenciaScreen from '../App/advertencia';
 import AsignarRepartidorScreen from '../App/b_asignar_repartidor'; 
 import MapScreen from '../App/mapa';
-import FacturasScreen from '../App/factura';  
+import FacturasScreen from '../App/b_factura';  
 import FacturaDetalleScreen from '../App/factura_detalle';  
 import DetalleEntregaScreen from '../App/detalle_entrega';
 import FinalizarEntregaScreen from '../App/finalizar_entrega_form';
@@ -54,3 +53,4 @@ const AppNavigator = () => {
 };
 
 export default AppNavigator;
+

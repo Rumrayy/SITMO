@@ -70,13 +70,13 @@ const PersonalScreen = () => {
           style={styles.menuItem}
           onPress={() => navigation.navigate('Personal')}
         >
-          <Icon name="users" size={24} color="black" />
+          <Icon name="users" size={24} color="#0066cc" />
           <Text style={styles.menuText}>Personal</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.menuItem}
-          onPress={() => navigation.navigate('Bodega')}
+          onPress={() => navigation.navigate('Facturas')}
         >
           <Icon name="truck" size={24} color="black" />
           <Text style={styles.menuText}>Bodega</Text>
