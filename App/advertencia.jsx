@@ -1,69 +1,67 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
-const AlertasScreen = () => {
+const advertencias = [
+  { id: '1', titulo: 'Cancelación #1', motivo: 'Cliente no disponible', fecha: '28 Abr 2025' },
+  { id: '2', titulo: 'Cancelación #2', motivo: 'Dirección incorrecta', fecha: '27 Abr 2025' },
+  { id: '3', titulo: 'Cancelación #3', motivo: 'Pedido duplicado', fecha: '25 Abr 2025' },
+  { id: '4', titulo: 'Cancelación #4', motivo: 'Vehículo averiado', fecha: '24 Abr 2025' },
+  { id: '5', titulo: 'Cancelación #5', motivo: 'Problemas climáticos', fecha: '23 Abr 2025' },
+  { id: '6', titulo: 'Cancelación #6', motivo: 'Cliente canceló el pedido', fecha: '22 Abr 2025' },
+  { id: '7', titulo: 'Cancelación #7', motivo: 'Entrega reprogramada por cliente', fecha: '21 Abr 2025' },
+  { id: '8', titulo: 'Cancelación #8', motivo: 'Problemas en la ruta de entrega', fecha: '20 Abr 2025' },
+];
+
+const AdvertenciaScreen = () => {
   const navigation = useNavigation();
 
-  // Datos de alertas
-  const alertas = [
-    {
-      id: 1241,
-      problema: "Mercancía incompleta",
-      detalles: "Faltan 2 cajas del pedido original. Cliente reportó faltante al momento de la entrega."
-    },
-    {
-      id: 15,
-      problema: "Daño en mercancía",
-      detalles: "Faltan 2 cajas del pedido original. Cliente reportó faltante al momento de la entrega."
-    }
-  ];
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.cardTitle}>{item.titulo}</Text>
+        <Text style={styles.cardMotivo}>{item.motivo}</Text>
+        <Text style={styles.cardFecha}>Fecha: {item.fecha}</Text>
+      </View>
+      <Icon name="exclamation-triangle" size={24} color="#dc3545" style={{ marginLeft: 10 }} />
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      
-      <ScrollView style={styles.alertContainer}>
-        {alertas.map((alerta) => (
-          <View key={alerta.id} style={styles.alertCard}>
-            <Text style={styles.alertTitle}>Entrega #{alerta.id}</Text>
-            <Text style={styles.alertProblem}>Problema: {alerta.problema}</Text>
-            <Text style={styles.alertDetails}>Detalles: {alerta.detalles}</Text>
-          </View>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={advertencias}
+        keyExtractor={(item) => item.id}
+        renderItem={renderItem}
+        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+      />
 
       <View style={styles.bottomMenu}>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Admin')}
-        >
-          <Icon name="home" size={24} color="#333" />
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Admin')}>
+          <Icon name="home" size={24} color="black" />
           <Text style={styles.menuText}>Inicio</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Personal')}
-        >
-          <Icon name="users" size={24} color="#333" />
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Personal')}>
+          <Icon name="users" size={24} color="black" />
           <Text style={styles.menuText}>Personal</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Facturas')}
-        >
-          <Icon name="truck" size={24} color="#333" />
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Bodega')}>
+          <Icon name="truck" size={24} color="black" />
           <Text style={styles.menuText}>Bodega</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Advertencia')}
-        >
-          <Icon name="exclamation-triangle" size={24} color="#0066cc" />
-          <Text style={[styles.menuText, { color: '#0066cc' }]}>Alertas</Text>
+
+        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Advertencia')}>
+          <Icon name="exclamation-triangle" size={24} color="black" />
+          <Text style={styles.menuText}>Advertencias</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -75,44 +73,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  alertContainer: {
-    flex: 1,
+  card: {
+    backgroundColor: '#f8d7da',
+    borderColor: '#f5c6cb',
+    borderWidth: 1,
+    borderRadius: 10,
     padding: 15,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  alertCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  alertTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  alertProblem: {
+  cardTitle: {
     fontSize: 16,
-    color: '#d32f2f',
-    marginBottom: 8,
+    fontWeight: 'bold',
+    color: '#721c24',
   },
-  alertDetails: {
+  cardMotivo: {
     fontSize: 14,
-    color: '#555',
-    lineHeight: 20,
+    color: '#721c24',
+  },
+  cardFecha: {
+    fontSize: 12,
+    color: '#721c24',
+    marginTop: 4,
   },
   bottomMenu: {
     flexDirection: 'row',
@@ -132,4 +115,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AlertasScreen;
+export default AdvertenciaScreen;

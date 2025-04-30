@@ -178,17 +178,21 @@ const AdminScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    
   },
   mapContainer: {
-    height: 250,  // Mapa más grande
-    width: '100%',
-    marginBottom: 15,
-    elevation: 5,  // Sombra para Android
-    shadowColor: '#000',  // Sombra para iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    height: 150, 
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginBottom: 20,
   },
   map: {
     ...StyleSheet.absoluteFillObject,
