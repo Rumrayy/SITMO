@@ -20,7 +20,8 @@ import DetalleEntregaScreen from '../App/detalle_entrega';
 import FinalizarEntregaScreen from '../App/finalizar_entrega_form';
 import ErrorEntregaScreen from '../App/cancelar_entrega_form';
 import Dashboard from '../App/dashboard_repartidor';
-import NuevaFacturaScreen from '../App/nuevafactura'; 
+import NuevaFacturaScreen from '../App/nuevafactura';
+import BodegaScreen from '../App/bod_admin'; // ✅ Importación añadida
 
 const Stack = createStackNavigator();
 

@@ -44,7 +44,11 @@ const BodegaScreen = () => {
 
   return (
     <View style={styles.container}>
+     
+
       <View style={styles.content}>
+       
+
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => navigation.navigate('NuevaFactura')}

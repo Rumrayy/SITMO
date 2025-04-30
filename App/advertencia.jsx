@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, S, FlatList, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 
@@ -30,13 +36,11 @@ const AdvertenciaScreen = () => {
 
   return (
     <View style={styles.container}>
-     
-
       <FlatList
         data={advertencias}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
       />
 
       <View style={styles.bottomMenu}>
@@ -68,19 +72,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 50,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 10,
   },
   card: {
     backgroundColor: '#f8d7da',
