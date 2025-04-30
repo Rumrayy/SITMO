@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import SHA256 from 'crypto-js/sha256';
 
 const validUsers = {
   'admin@carosa.com': { 
@@ -37,25 +39,64 @@ const LoginScreen = ({ navigation }) => {
 
     setLoading(true);
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+    // try {
+    //   await new Promise(resolve => setTimeout(resolve, 1500));
 
-      if (validUsers[email] && validUsers[email].password === password) {
-        const user = validUsers[email];
-        await AsyncStorage.multiSet([
-          ['userToken', 'authenticated'],
-          ['userEmail', email],
-          ['userRole', user.role]
-        ]);
+    //   if (validUsers[email] && validUsers[email].password === password) {
+    //     const user = validUsers[email];
+    //     await AsyncStorage.multiSet([
+    //       ['userToken', 'authenticated'],
+    //       ['userEmail', email],
+    //       ['userRole', user.role]
+    //     ]);
         
-        Alert.alert('Éxito', `Bienvenido ${user.name}`);
-        navigation.navigate(user.screen);
+    //     Alert.alert('Éxito', `Bienvenido ${user.name}`);
+    //     navigation.navigate(user.screen);
+    //   } else {
+    //     Alert.alert('Error', 'Credenciales incorrectas');
+    //   }
+    // } catch (error) {
+    //   Alert.alert('Error', 'Ocurrió un problema al iniciar sesión');
+    //   console.error(error);
+    // } finally {
+    //   setLoading(false);
+    // }
+    try {
+      const hashedPassword = SHA256(password).toString();
+      const response = await axios.post('https://192.168.0.11:44387/InicioSesion/Validar', {
+        NombreUsuario: email,
+        Contrasena: hashedPassword,
+      });
+      const data = response.data;
+
+      if (data.DebeCambiarContrasena) {
+        await AsyncStorage.multiSet([
+          ['userEmail', data.nombreUsuario],
+          ['userId', data.id.toString()],
+        ]);
+        Alert.alert('Atención', data.mensaje || 'Debe cambiar su contraseña');
+        navigation.navigate('ChangePassword');
       } else {
-        Alert.alert('Error', 'Credenciales incorrectas');
+        await AsyncStorage.multiSet([
+          ['userToken', data.token],
+          ['userEmail', data.nombreUsuario],
+          ['userRole', data.rolId.toString()],
+          ['userId', data.id.toString()],
+        ]);
+        Alert.alert('Éxito', `Bienvenido ${data.nombreUsuario}`);
+        // Redirigir por rolId
+        let screen;
+        switch (data.rolId) {
+          case 1: screen = 'Admin'; break;
+          case 2: screen = 'Facturas'; break;
+          case 3: screen = 'Repartidor'; break;
+          default: screen = 'Login'; break;
+        }
+        navigation.navigate(screen);
       }
     } catch (error) {
-      Alert.alert('Error', 'Ocurrió un problema al iniciar sesión');
-      console.error(error);
+      console.error('Login error:', error);
+      Alert.alert('Error', 'Credenciales incorrectas o problema del servidor');
     } finally {
       setLoading(false);
     }
