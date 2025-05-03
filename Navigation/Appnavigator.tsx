@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState, useContext  } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
+import { AuthContext } from '../App/AuthContext';
 
 // Importar pantallas
 import LoginScreen from '../App/login';
@@ -21,33 +23,47 @@ import FinalizarEntregaScreen from '../App/finalizar_entrega_form';
 import ErrorEntregaScreen from '../App/cancelar_entrega_form';
 import Dashboard from '../App/dashboard_repartidor';
 import NuevaFacturaScreen from '../App/nuevafactura';
-import BodegaScreen from '../App/bod_admin'; // ✅ Importación añadida
+import BodegaScreen from '../App/bod_admin';
 
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
+  const { userToken, isLoading } = useContext(AuthContext);
+
+  if (isLoading) {
+    return null; 
+  }
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Bodega">
-        <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Iniciar Sesión' }} /> 
-        <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Cambiar Contraseña' }} />
-        <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Panel Admin' }} />
-        <Stack.Screen name="Personal" component={PersonalScreen} options={{ title: 'Personal' }} />
-        <Stack.Screen name="PersonalBodega" component={PersonalBodegaScreen} options={{ title: 'Personal Bodega' }} />
-        <Stack.Screen name="PersonalMotorista" component={PersonalMotoristaScreen} options={{ title: 'Personal Motorista' }} />
-        <Stack.Screen name="NuevoUsuario" component={NuevoUsuarioScreen} options={{ title: 'Nuevo Usuario' }} />
-        <Stack.Screen name="Ubicacion" component={LocationComponent} options={{ title: 'Ubicación' }} />
-        <Stack.Screen name="Bodega" component={BodegaScreen} options={{ title: 'Bodega' }} />
-        <Stack.Screen name="Advertencia" component={AdvertenciaScreen} options={{ title: 'Advertencia' }} />
-        <Stack.Screen name="AsignarRepartidor" component={AsignarRepartidorScreen} options={{ title: 'Asignar Repartidor' }} />
-        <Stack.Screen name="Mapa" component={MapScreen} options={{ title: 'Ver en Mapa' }} />
-        <Stack.Screen name="Facturas" component={FacturasScreen} options={{ title: 'Facturas' }} />
-        <Stack.Screen name="FacturaDetalle" component={FacturaDetalleScreen} options={{ title: 'Detalles de Factura' }} />
-        <Stack.Screen name="DetalleEntrega" component={DetalleEntregaScreen} options={{ title: 'Detalle de Entrega' }} />
-        <Stack.Screen name="FinalizarEntrega" component={FinalizarEntregaScreen} options={{ title: 'Finalizar Entrega' }} />
-        <Stack.Screen name="ErrorEntrega" component={ErrorEntregaScreen} options={{ title: 'Error de Entrega' }} />
-        <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard' }} />
-        <Stack.Screen name="NuevaFactura" component={NuevaFacturaScreen} options={{ title: 'Nueva Factura' }} />
+      <Stack.Navigator initialRouteName={userToken ? 'Admin' : 'Login'}>
+        {!userToken ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          </>
+        ) : (
+          <>
+            {/* Pantallas autenticadas aquí */}
+            <Stack.Screen name="Admin" component={AdminScreen} />
+            <Stack.Screen name="Personal" component={PersonalScreen} options={{ title: 'Personal' }} />
+            <Stack.Screen name="PersonalBodega" component={PersonalBodegaScreen} options={{ title: 'Personal Bodega' }} />
+            <Stack.Screen name="PersonalMotorista" component={PersonalMotoristaScreen} options={{ title: 'Personal Motorista' }} />
+            <Stack.Screen name="NuevoUsuario" component={NuevoUsuarioScreen} options={{ title: 'Nuevo Usuario' }} />
+            <Stack.Screen name="Ubicacion" component={LocationComponent} options={{ title: 'Ubicación' }} />
+            <Stack.Screen name="Bodega" component={BodegaScreen} options={{ title: 'Bodega' }} />
+            <Stack.Screen name="Advertencia" component={AdvertenciaScreen} options={{ title: 'Advertencia' }} />
+            <Stack.Screen name="AsignarRepartidor" component={AsignarRepartidorScreen} options={{ title: 'Asignar Repartidor' }} />
+            <Stack.Screen name="Mapa" component={MapScreen} options={{ title: 'Ver en Mapa' }} />
+            <Stack.Screen name="Facturas" component={FacturasScreen} options={{ title: 'Facturas' }} />
+            <Stack.Screen name="FacturaDetalle" component={FacturaDetalleScreen} options={{ title: 'Detalles de Factura' }} />
+            <Stack.Screen name="DetalleEntrega" component={DetalleEntregaScreen} options={{ title: 'Detalle de Entrega' }} />
+            <Stack.Screen name="FinalizarEntrega" component={FinalizarEntregaScreen} options={{ title: 'Finalizar Entrega' }} />
+            <Stack.Screen name="ErrorEntrega" component={ErrorEntregaScreen} options={{ title: 'Error de Entrega' }} />
+            <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard' }} />
+            <Stack.Screen name="NuevaFactura" component={NuevaFacturaScreen} options={{ title: 'Nueva Factura' }} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

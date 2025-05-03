@@ -2,7 +2,7 @@ import axios from 'axios';
 import { VistaUsuariosDTO } from '../Types/VistaUsuario';
 import { AgregarUsuarioDTO } from '../Types/AgregarUsuarioDTO';
 import { ListaDeEntregasDTO } from '../Types/ListaDeEntregaDTO';
-import { RecorridoEntregaDTO } from '../Types/RecorridoEntregaDTO'
+import { RecorridoEntregaDTO } from '../Types/RecorridoEntregaDTO';
 const API_URL = 'https://localhost:44387/VistaUsuarios'; 
 
 export const getRepartidores = async (): Promise<VistaUsuariosDTO[]> => {
@@ -45,6 +45,6 @@ export const getRepartidores = async (): Promise<VistaUsuariosDTO[]> => {
     return response.data;
   };
 
-  export const crearRecorrido = (data: RecorridoEntregaDTO) => {
+  export const crearRecorrido = (data: RecorridoEntregaDTO, latitude: any, longitude: any, idEstadoCatalogo: number, batteryLevel: number, isWifiEnabled: boolean, isCellularEnabled: boolean, connectionQuality: string, deviceInfo: { modelName: string; osName: string; osVersion: string; isDevice: boolean; deviceName: string; designName: string; productName: string; deviceYearClass: number; supportedCpuArchitectures: string[]; osBuildId: string; }) => {
     return axios.post(`${API_URL}/RecorridoEntrega`, data);
   };

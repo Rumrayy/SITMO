@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext  } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import SHA256 from 'crypto-js/sha256';
-
+import { validarSesion } from './service/LoginService';
+import { AuthContext } from '../App/AuthContext';
 const validUsers = {
   'admin@carosa.com': { 
     password: 'admin123', 
@@ -30,6 +30,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -39,36 +40,14 @@ const LoginScreen = ({ navigation }) => {
 
     setLoading(true);
 
-    // try {
-    //   await new Promise(resolve => setTimeout(resolve, 1500));
-
-    //   if (validUsers[email] && validUsers[email].password === password) {
-    //     const user = validUsers[email];
-    //     await AsyncStorage.multiSet([
-    //       ['userToken', 'authenticated'],
-    //       ['userEmail', email],
-    //       ['userRole', user.role]
-    //     ]);
-        
-    //     Alert.alert('Éxito', `Bienvenido ${user.name}`);
-    //     navigation.navigate(user.screen);
-    //   } else {
-    //     Alert.alert('Error', 'Credenciales incorrectas');
-    //   }
-    // } catch (error) {
-    //   Alert.alert('Error', 'Ocurrió un problema al iniciar sesión');
-    //   console.error(error);
-    // } finally {
-    //   setLoading(false);
-    // }
     try {
       const hashedPassword = SHA256(password).toString();
-      const response = await axios.post('https://192.168.0.11:44387/InicioSesion/Validar', {
-        NombreUsuario: email,
+      const loginData = {
+        Correo: email,         
         Contrasena: hashedPassword,
-      });
-      const data = response.data;
-
+      };
+  
+      const data = await validarSesion(loginData);
       if (data.DebeCambiarContrasena) {
         await AsyncStorage.multiSet([
           ['userEmail', data.nombreUsuario],
@@ -77,12 +56,7 @@ const LoginScreen = ({ navigation }) => {
         Alert.alert('Atención', data.mensaje || 'Debe cambiar su contraseña');
         navigation.navigate('ChangePassword');
       } else {
-        await AsyncStorage.multiSet([
-          ['userToken', data.token],
-          ['userEmail', data.nombreUsuario],
-          ['userRole', data.rolId.toString()],
-          ['userId', data.id.toString()],
-        ]);
+        await login(data.token);
         Alert.alert('Éxito', `Bienvenido ${data.nombreUsuario}`);
         // Redirigir por rolId
         let screen;
@@ -100,6 +74,10 @@ const LoginScreen = ({ navigation }) => {
     } finally {
       setLoading(false);
     }
+    // await AsyncStorage.setItem('userToken', data.token);
+    // await AsyncStorage.setItem('userEmail', data.nombreUsuario);
+    // await AsyncStorage.setItem('userRole', data.rolId.toString());
+    // await AsyncStorage.setItem('userId', data.id.toString());
   };
 
   useEffect(() => {

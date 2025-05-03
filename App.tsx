@@ -1,8 +1,14 @@
 import React from 'react';
 import AppNavigator from './Navigation/Appnavigator';
+import { AuthProvider } from './App/AuthContext';
 
 const App: React.FC = () => {
-  return <AppNavigator />;
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
+  );
 };
+
 
 export default App;

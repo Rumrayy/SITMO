@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { InicioSesionDTO, CambiarContrasenaDTO} from '../Types/Login';
 
-const API_URL = 'https://localhost:44387/InicioSesion'; 
+const API_URL = 'https://monitoreoapi.edwindeveloper.online/InicioSesion'; 
 
 export const validarSesion = async (datos: InicioSesionDTO) => {
   const response = await axios.post(`${API_URL}/Validar`, datos);
