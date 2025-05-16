@@ -2,7 +2,7 @@ import axios from 'axios';
 import { ListaDeFacturasDTO, FacturaFiltroDTO, AsignarFacturaDTO } from '../Types/ListaDeFacturasDTO';
 import { ListaDeEntregasDTO, ConteoDisposicionDTO } from '../Types/ListaDeEntregaDTO';
 
-const API_URL = 'https://localhost:44387/BodegaAcciones'; 
+const API_URL = 'https://monitoreoapi.edwindeveloper.online/BodegaAcciones'; 
 
 export const getFacturas = async (filtro: FacturaFiltroDTO): Promise<ListaDeFacturasDTO[]> => {
   const response = await axios.post<ListaDeFacturasDTO[]>(`${API_URL}/Facturas`, filtro);

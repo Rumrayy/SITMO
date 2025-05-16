@@ -3,7 +3,7 @@ import { VistaUsuariosDTO } from '../Types/VistaUsuario';
 import { AgregarUsuarioDTO } from '../Types/AgregarUsuarioDTO';
 import { ListaDeEntregasDTO } from '../Types/ListaDeEntregaDTO';
 import { RecorridoEntregaDTO } from '../Types/RecorridoEntregaDTO';
-const API_URL = 'https://localhost:44387/VistaUsuarios'; 
+const API_URL = 'https://monitoreoapi.edwindeveloper.online/VistaUsuarios'; 
 
 export const getRepartidores = async (): Promise<VistaUsuariosDTO[]> => {
     const response = await axios.get<VistaUsuariosDTO[]>(`${API_URL}/Repartidores`);

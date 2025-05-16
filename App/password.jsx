@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { cambiarContrasena } from './service/LoginService';
+import { useNavigation } from '@react-navigation/native';
 
 const ChangePasswordScreen = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const correo = await AsyncStorage.getItem('userEmail');
+      setEmail(correo || '');
+    };
+    loadUserData();
+  }, []);
+
 
   const requirements = [
     { text: 'Mínimo 8 caracteres', isValid: newPassword.length >= 8 },
@@ -14,11 +29,32 @@ const ChangePasswordScreen = () => {
 
   const passwordsMatch = newPassword === confirmPassword && newPassword.length > 0;
 
-  const handleChangePassword = () => {
-    if (newPassword && confirmPassword && passwordsMatch) {
-      Alert.alert('Contraseña cambiada', 'Tu contraseña ha sido actualizada exitosamente.');
-    } else {
-      Alert.alert('Error', 'Por favor, completa todos los campos y asegúrate de que las contraseñas coincidan.');
+  const handleChangePassword = async () => {
+     if (!currentPassword || !newPassword || !confirmPassword || !passwordsMatch) {
+      Alert.alert('Error', 'Completa todos los campos correctamente.');
+      return;
+    }
+    try {
+      const dto = {
+        Correo: email,
+        Contrasena: currentPassword,
+        NuevaContrasena: newPassword,
+        ConfirmarNuevaContrasena: confirmPassword
+      };
+      const response = await cambiarContrasena(dto);
+      Alert.alert('Éxito', response.mensaje || 'Contraseña actualizada.');
+
+      const roleId = await AsyncStorage.getItem('userRole');
+      if (roleId === '1') {
+        navigation.reset({ index: 0, routes: [{ name: 'Admin' }] });
+      } else if (roleId === '2') {
+        navigation.reset({ index: 0, routes: [{ name: 'Facturas' }] });
+      } else if (roleId === '3') {
+        navigation.reset({ index: 0, routes: [{ name: 'Dashboard' }] });
+      }
+    } catch (error) {
+      console.error('Cambio error:', error);
+      Alert.alert('Error', 'No se pudo cambiar la contraseña. Verifica tus datos.');
     }
   };
 

@@ -1,54 +1,45 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 import { useNavigation } from '@react-navigation/native';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps'; 
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { getConteoEntregas, getEntregasPorDisposicion } from './service/EntregaService';
+
 
 const AdminScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('enCurso');
-  
-  // Datos de ejemplo
-  const entregasEnCurso = [
-    {
-      id: 1,
-      titulo: "Entrega #1",
-      encargado: "Juan Pérez",
-      direccion: "Calle Falsa 123, San Salvador",
-      estado: "En camino",
-      hora: "10:30 AM"
-    },
-    {
-      id: 2,
-      titulo: "Entrega #3",
-      encargado: "Carlos Martínez",
-      direccion: "Colonia Escalón, Casa #45",
-      estado: "En preparación",
-      hora: "11:15 AM"
-    }
-    
-  ];
+  const [enCurso, setEnCurso] = useState([]);
+  const [finalizadas, setFinalizadas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const entregasFinalizadas = [
-    {
-      id: 1,
-      titulo: "Entrega #5",
-      encargado: "María Gómez",
-      direccion: "Avenida Siempre Viva 456",
-      estado: "Entregado",
-      hora: "9:00 AM",
-      fecha: "15/05/2023"
-    },
-    {
-      id: 2,
-      titulo: "Entrega #7",
-      encargado: "Luis Hernández",
-      direccion: "Residencial Las Flores, Block 2",
-      estado: "Entregado",
-      hora: "1:30 PM",
-      fecha: "14/05/2023"
-    }
-  ];
+  const mapDisposiciones = {
+    'En ruta': 2,
+    'Entregado': 3,
+  };
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const conteo = await getConteoEntregas();
+        const disposiciones = conteo.map(c => c.disposicion);
+
+        if (disposiciones.includes('En ruta')) {
+          const enCursoData = await getEntregasPorDisposicion(mapDisposiciones['En ruta']);
+          setEnCurso(enCursoData);
+        }
+        if (disposiciones.includes('Entregado')) {
+          const finalizadasData = await getEntregasPorDisposicion(mapDisposiciones['Entregado']);
+          setFinalizadas(finalizadasData);
+        }
+      } catch (error) {
+        console.error('Error al cargar entregas:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -85,56 +76,54 @@ const AdminScreen = () => {
 
       {/* Listado de entregas */}
       <ScrollView style={styles.deliveriesContainer}>
-        {activeTab === 'enCurso' ? (
-          <>
-            {entregasEnCurso.map((entrega) => (
-              <View key={entrega.id} style={styles.deliveryCard}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
-                  <View style={[styles.statusBadge, styles.inProgressBadge]}>
-                    <Text style={styles.statusText}>{entrega.estado}</Text>
-                  </View>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="user" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.encargado}</Text>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="map-marker" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.direccion}</Text>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="clock-o" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.hora}</Text>
+      {loading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : activeTab === 'enCurso' ? (
+          enCurso.map((entrega) => (
+            <View key={entrega.id} style={styles.deliveryCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
+                <View style={[styles.statusBadge, styles.inProgressBadge]}>
+                  <Text style={styles.statusText}>{entrega.estado}</Text>
                 </View>
               </View>
-            ))}
-          </>
+              <View style={styles.deliveryInfo}>
+                <Icon name="user" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.encargado}</Text>
+              </View>
+              <View style={styles.deliveryInfo}>
+                <Icon name="map-marker" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.direccion}</Text>
+              </View>
+              <View style={styles.deliveryInfo}>
+                <Icon name="clock-o" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.hora}</Text>
+              </View>
+            </View>
+          ))
         ) : (
-          <>
-            {entregasFinalizadas.map((entrega) => (
-              <View key={entrega.id} style={styles.deliveryCard}>
-                <View style={styles.cardHeader}>
-                  <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
-                  <View style={[styles.statusBadge, styles.completedBadge]}>
-                    <Text style={styles.statusText}>{entrega.estado}</Text>
-                  </View>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="user" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.encargado}</Text>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="map-marker" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.direccion}</Text>
-                </View>
-                <View style={styles.deliveryInfo}>
-                  <Icon name="calendar" size={14} color="#555" />
-                  <Text style={styles.infoText}>{entrega.fecha} - {entrega.hora}</Text>
+          finalizadas.map((entrega) => (
+            <View key={entrega.id} style={styles.deliveryCard}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
+                <View style={[styles.statusBadge, styles.completedBadge]}>
+                  <Text style={styles.statusText}>{entrega.estado}</Text>
                 </View>
               </View>
-            ))}
-          </>
+              <View style={styles.deliveryInfo}>
+                <Icon name="user" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.encargado}</Text>
+              </View>
+              <View style={styles.deliveryInfo}>
+                <Icon name="map-marker" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.direccion}</Text>
+              </View>
+              <View style={styles.deliveryInfo}>
+                <Icon name="calendar" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.fecha} - {entrega.hora}</Text>
+              </View>
+            </View>
+          ))
         )}
       </ScrollView>
 
