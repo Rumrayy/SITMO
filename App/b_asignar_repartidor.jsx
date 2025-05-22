@@ -1,33 +1,73 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Modal, ToastAndroid 
-} from 'react-native';
-
-const repartidores = [
-  { id: '1', nombre: 'Juan Pérez', codigo: '#REP-12345', direccion: 'San Salvador', zona: 'Centro Histórico', disponible: true, imagen: { uri: 'https://randomuser.me/api/portraits/men/1.jpg' } },
-  { id: '2', nombre: 'Maria Morales', codigo: '#REP-34512', direccion: 'Santa Tecla', zona: 'Zona Rosa', disponible: false, imagen: { uri: 'https://randomuser.me/api/portraits/women/2.jpg' } },
-  { id: '3', nombre: 'Judith Guerra', codigo: '#REP-45785', direccion: 'Soyapango', zona: 'Plaza Mundo', disponible: true, imagen: { uri: 'https://randomuser.me/api/portraits/women/3.jpg' } },
-];
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Modal, ToastAndroid } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AsignarRepartidorScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedRepartidor, setSelectedRepartidor] = useState(null);
+  const [repartidores, setRepartidores] = useState([]);
 
   const handleSelectRepartidor = (repartidor) => {
     if (!repartidor.disponible) return; // Evitar selección de repartidores no disponibles
     setSelectedRepartidor(repartidor);
     setModalVisible(true);
   };
+  useEffect(() => {
+  const fetchMotoristas = async () => {
+    try {
+      const storedUsers = await AsyncStorage.getItem('customUsers');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
 
-  const confirmAssignment = () => {
-    setModalVisible(false);
-    ToastAndroid.show('Asignado correctamente', ToastAndroid.SHORT);
-    
-    // Redirigir a la pantalla de facturas después de la asignación
-    setTimeout(() => {
-      navigation.navigate('Facturas');
-    }, 1000);
+      const motoristas = users
+        .filter(u => u.role === 'motorista')
+        .map(u => ({
+          id: u.id || u.email,
+          nombre: `${u.name} ${u.lastName || ''}`,
+          codigo: u.codigo || `#REP-${Math.floor(Math.random() * 90000 + 10000)}`,
+          direccion: u.direccion || 'No especificada',
+          zona: u.zona || 'Sin zona',
+          disponible: u.estado === 'Disponible',
+          imagen: { uri: u.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg' }
+        }));
+
+      setRepartidores(motoristas);
+    } catch (error) {
+      console.error('Error al cargar motoristas:', error);
+    }
   };
+
+  fetchMotoristas();
+  }, []);
+
+  const confirmAssignment = async () => {
+    try {
+      // Obtener factura desde navigation params
+      const { factura } = navigation.getState().routes.find(r => r.name === 'AsignarRepartidor')?.params || {};
+
+      if (!factura || !selectedRepartidor) return;
+
+      const storedFacturas = await AsyncStorage.getItem('facturas');
+      const parsedFacturas = storedFacturas ? JSON.parse(storedFacturas) : [];
+
+      // Actualizar la factura seleccionada con repartidor asignado
+      const updatedFacturas = parsedFacturas.map(f => {
+        if (f.id === factura.id) {
+          return { ...f, repartidorEmail: selectedRepartidor.id }; // usa el ID o email del repartidor
+        }
+        return f;
+      });
+
+      await AsyncStorage.setItem('facturas', JSON.stringify(updatedFacturas));
+
+      ToastAndroid.show('Repartidor asignado correctamente', ToastAndroid.SHORT);
+      setModalVisible(false);
+
+      navigation.navigate('Facturas'); // o regresar
+    } catch (error) {
+      console.error('Error asignando repartidor:', error);
+    }
+  };
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity 

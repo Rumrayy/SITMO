@@ -11,10 +11,9 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState([]);
-const [facturasRealizadas, setFacturasRealizadas] = useState(0);
-const [facturasPendientes, setFacturasPendientes] = useState(0);
-const [isActive, setIsActive] = useState(true);
-const toggleSwitch = () => setIsActive(previousState => !previousState);
+  const [facturasRealizadas, setFacturasRealizadas] = useState(0);
+  const [facturasPendientes, setFacturasPendientes] = useState(0);
+  const [isActive, setIsActive] = useState(true);
 
   const [initialCoords, setInitialCoords] = useState({
     latitude: 13.982521295694758, // coordenadas por defecto (San Salvador)
@@ -35,19 +34,10 @@ const toggleSwitch = () => setIsActive(previousState => !previousState);
 
  useEffect(() => {
   const fetchUser = async () => {
-    const userInvoices = allInvoices.filter(f => f.email === currentUser.email);
-setInvoices(userInvoices);
-
-const realizadas = userInvoices.filter(f => f.status.toLowerCase() === 'realizada' || f.status.toLowerCase() === 'completado').length;
-const pendientes = userInvoices.filter(f => f.status.toLowerCase() === 'pendiente').length;
-
-setFacturasRealizadas(realizadas);
-setFacturasPendientes(pendientes);
-
     try {
       const email = await AsyncStorage.getItem('userEmail');
       const usersRaw = await AsyncStorage.getItem('customUsers');
-      const allInvoicesRaw = await AsyncStorage.getItem('facturas'); // ← deberías guardar esto al crear facturas
+      const allInvoicesRaw = await AsyncStorage.getItem('facturas');
 
       const users = usersRaw ? JSON.parse(usersRaw) : [];
       const allInvoices = allInvoicesRaw ? JSON.parse(allInvoicesRaw) : [];
@@ -56,8 +46,8 @@ setFacturasPendientes(pendientes);
 
       if (currentUser) {
         setUser(currentUser);
+        setIsActive(currentUser.estado === 'Disponible');
 
-        // Coordenadas opcionales
         setInitialCoords({
           latitude: currentUser.lat || 13.982521295694758,
           longitude: currentUser.lng || -89.54769904696455,
@@ -65,9 +55,21 @@ setFacturasPendientes(pendientes);
           longitudeDelta: 0.01,
         });
 
-        // Filtrar facturas del usuario
-        const userInvoices = allInvoices.filter(f => f.email === currentUser.email);
+        const userInvoices = allInvoices.filter(f => f.repartidorEmail === currentUser.email);
+
         setInvoices(userInvoices);
+
+        const realizadas = userInvoices.filter(f =>
+          f.status && ['entregado', 'finalizado'].includes(f.status.toLowerCase())
+        ).length;
+
+        const pendientes = userInvoices.filter(f =>
+          f.status && f.status.toLowerCase() === 'pendiente'
+        ).length;
+
+
+        setFacturasRealizadas(realizadas);
+        setFacturasPendientes(pendientes);
       }
     } catch (error) {
       console.error('Error cargando usuario o facturas:', error);
@@ -75,9 +77,36 @@ setFacturasPendientes(pendientes);
       setLoading(false);
     }
   };
+  const unsubscribe = navigation.addListener('focus', fetchUser);
+  return unsubscribe;
+    fetchUser();
+  }, []);
 
-  fetchUser();
-}, []);
+  const toggleSwitch = async () => {
+    if (!user) {
+      console.warn('Usuario aún no está cargado');
+      return;
+    }
+
+    try {
+      const updatedState = !isActive;
+      setIsActive(updatedState);
+
+      const storedUsers = await AsyncStorage.getItem('customUsers');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+      const updatedUsers = users.map(u => {
+        if (u.email === user.email) {
+          return { ...u, estado: updatedState ? 'Disponible' : 'No disponible' };
+        }
+        return u;
+      });
+
+      await AsyncStorage.setItem('customUsers', JSON.stringify(updatedUsers));
+    } catch (error) {
+      console.error('Error al cambiar estado del usuario:', error);
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Bienvenido, {user?.name || 'Usuario'}</Text>
@@ -86,10 +115,11 @@ setFacturasPendientes(pendientes);
             Estado: {isActive ? 'Activo' : 'Inactivo'}
           </Text>
           <Switch
-            value={isActive}
-            onValueChange={toggleSwitch}
-            thumbColor={isActive ? '#00cc00' : '#ccc'}
-          />
+          value={isActive}
+          onValueChange={toggleSwitch}
+          thumbColor={isActive ? '#00cc00' : '#ccc'}
+          disabled={user === null}
+        />
         </View>
 
       {/* Mapa */}
@@ -114,12 +144,15 @@ setFacturasPendientes(pendientes);
         renderItem={({ item }) => (
           <View style={styles.invoiceCard}>
             <View style={styles.invoiceInfo}>
-              <Text style={styles.invoiceTitle}>{item.title}</Text>
-              <Text>{item.status}</Text>
+              <Text style={styles.invoiceTitle}>{item.titulo}</Text>
+              <Text>{item.descripcion}</Text>
+              <Text>Fecha de entrega: {item.fechaEntrega}</Text>
+              <Text>Estado: {item.status}</Text>
             </View>
             <TouchableOpacity
               style={styles.detailsButton}
-              onPress={() => navigation.navigate('DetalleEntrega', { factura: item })}
+              onPress={() => navigation.navigate('DetalleEntrega', { invoiceId: item.id })}
+
             >
               <Text style={styles.detailsButtonText}>Detalles</Text>
             </TouchableOpacity>

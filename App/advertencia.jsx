@@ -8,14 +8,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import NavBarAdinBog from './NavBarAdminBog';
-
-const advertenciasMock = [
-  { id: '1', titulo: 'Cancelación #1', motivo: 'Cliente no disponible', fecha: '28 Abr 2025' },
-  { id: '2', titulo: 'Cancelación #2', motivo: 'Dirección incorrecta', fecha: '27 Abr 2025' },
-  { id: '3', titulo: 'Cancelación #3', motivo: 'Pedido duplicado', fecha: '25 Abr 2025' },
-];
 
 const AdvertenciaScreen = () => {
   const [advertencias, setAdvertencias] = useState([]);
@@ -29,15 +22,8 @@ const AdvertenciaScreen = () => {
       const json = await AsyncStorage.getItem('advertencias');
       const advertenciasGuardadas = json ? JSON.parse(json) : [];
 
-      const todasAdvertencias = [...advertenciasMock];
+      setAdvertencias(advertenciasGuardadas);
 
-      advertenciasGuardadas.forEach((guardada) => {
-        if (!todasAdvertencias.find((a) => a.id === guardada.id)) {
-          todasAdvertencias.push(guardada);
-        }
-      });
-
-      setAdvertencias(todasAdvertencias);
     } catch (error) {
       console.error('Error cargando advertencias del almacenamiento:', error);
     }

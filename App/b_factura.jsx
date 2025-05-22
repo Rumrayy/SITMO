@@ -24,15 +24,16 @@ const FacturasScreen = ({ navigation }) => {
   }, []);
 
   const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate('FacturaDetalle', { factura: item })}
-    >
-      <Text style={styles.title}>Factura #{item.pedido}</Text>
-      <Text style={styles.description}>Interno: {item.interno} - Ubicación: {item.ubicacion}</Text>
-      <Text style={styles.date}>Fecha de entrega: {item.fechaEntrega}</Text>
-    </TouchableOpacity>
-  );
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => navigation.navigate('FacturaDetalle', { factura: item })}
+  >
+    <Text style={styles.title}>{item.titulo}</Text>
+    <Text style={styles.description}>{item.descripcion}</Text>
+    <Text style={styles.date}>Fecha de entrega: {item.fechaEntrega}</Text>
+  </TouchableOpacity>
+);
+
 
   return (
     <View style={styles.container}>

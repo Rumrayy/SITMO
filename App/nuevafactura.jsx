@@ -15,31 +15,49 @@ const IngresoEmpresa = () => {
   empresaSeleccionada: ''
 });
 
-
 useEffect(() => {
-  const fetchFacturas = async () => {
+  const fetchData = async () => {
     try {
+      const storedEmpresas = await AsyncStorage.getItem('empresas');
+      const parsedEmpresas = storedEmpresas ? JSON.parse(storedEmpresas) : [];
+      setEmpresas(parsedEmpresas);
+
       const storedFacturas = await AsyncStorage.getItem('facturas');
-      const parsed = storedFacturas ? JSON.parse(storedFacturas) : [];
-      setFacturas(parsed);
+      const parsedFacturas = storedFacturas ? JSON.parse(storedFacturas) : [];
+      setFacturas(parsedFacturas);
     } catch (error) {
-      console.error('Error cargando facturas:', error);
+      console.error('Error cargando datos:', error);
     }
   };
 
-  const unsubscribe = navigation.addListener('focus', fetchFacturas);
+  const unsubscribe = navigation.addListener('focus', fetchData);
   return unsubscribe;
 }, [navigation]);
 
-  const agregarEmpresa = () => {
-    if (!empresaData.nombre.trim() || !empresaData.ruta.trim()) {
-      Alert.alert('Error', 'Todos los campos son obligatorios.');
-      return;
-    }
-    setEmpresas([...empresas, { ...empresaData }]);
+
+ const agregarEmpresa = async () => {
+  if (!empresaData.nombre.trim() || !empresaData.ruta.trim()) {
+    Alert.alert('Error', 'Todos los campos son obligatorios.');
+    return;
+  }
+
+  try {
+    const storedEmpresas = await AsyncStorage.getItem('empresas');
+    const parsedEmpresas = storedEmpresas ? JSON.parse(storedEmpresas) : [];
+
+    const nuevaEmpresa = { ...empresaData };
+    const actualizadas = [...parsedEmpresas, nuevaEmpresa];
+
+    await AsyncStorage.setItem('empresas', JSON.stringify(actualizadas));
+    setEmpresas(actualizadas); // actualiza la lista mostrada
     setEmpresaData({ nombre: '', ruta: '' });
+
     Alert.alert('Éxito', 'Empresa agregada correctamente.');
-  };
+  } catch (error) {
+    console.error('Error guardando empresa:', error);
+  }
+};
+
 
   const agregarFactura = async () => {
     if (!factura.pedido.trim() || !factura.ubicacion.trim() || !factura.interno.trim() || !factura.empresaSeleccionada) {
@@ -55,7 +73,9 @@ useEffect(() => {
     titulo: `Factura #${factura.pedido}`,
     descripcion: `Interno: ${factura.interno} - Ubicación: ${factura.ubicacion}`,
     fechaEntrega: new Date().toLocaleDateString(),
-    empresa: factura.empresaSeleccionada
+    empresa: factura.empresaSeleccionada,
+    status: 'Pendiente', 
+  repartidorEmail: null,
   };
 
   parsedFacturas.push(nuevaFactura);

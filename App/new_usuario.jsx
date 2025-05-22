@@ -62,6 +62,7 @@ const handleCreateUser = async () => {
       username,
       role,
       phone,
+      estado: role === 'motorista' ? 'Disponible' : undefined,
       screen:
         role === 'admin'
           ? 'Admin'

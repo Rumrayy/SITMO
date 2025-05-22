@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 
@@ -9,6 +9,18 @@ const FacturaDetalleScreen = ({ route, navigation }) => {
     direccion = "Dirección no disponible",
     ubicacionCliente = {},
   } = route.params || {};
+  const [repartidor, setRepartidor] = useState(null);
+
+  useEffect(() => {
+    const loadRepartidor = async () => {
+      const storedUsers = await AsyncStorage.getItem('customUsers');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+      const encontrado = users.find(u => u.email === factura.repartidorEmail);
+      if (encontrado) setRepartidor(encontrado);
+    };
+
+    if (factura.repartidorEmail) loadRepartidor();
+  }, [factura]);
 
   return (
     <View style={styles.container}>
@@ -29,7 +41,10 @@ const FacturaDetalleScreen = ({ route, navigation }) => {
         <Text style={styles.detailsTitle}>Detalles</Text>
         <Text style={styles.detailsText}>Información de la entrega</Text>
         <Text style={styles.detailsText}>Fecha aceptada: {factura.fechaEntrega || "N/A"}</Text>
+        <Text style={styles.detailsText}> {factura.titulo || "N/A"}</Text>
+         <Text style={styles.detailsText}> {factura.descripcion || "N/A"}</Text>
         <Text style={styles.detailsText}>Destino: {direccion}</Text>
+        <Text style={styles.detailsText}>Estado actual: {factura.status || 'Sin estado'}</Text>
       </View>
 
       {/* Mapa solo si la ubicación está disponible */}
@@ -56,6 +71,11 @@ const FacturaDetalleScreen = ({ route, navigation }) => {
       >
         <Text style={styles.buttonText}>Asignar Repartidor</Text>
       </TouchableOpacity>
+      <Text style={styles.asignadoText}>
+        Asignado a: {repartidor?.name || factura.repartidorEmail || 'No asignado'}
+      </Text>
+
+
     </View>
   );
 };
@@ -81,7 +101,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonText: { color: "#fff", fontWeight: "bold" },
-  errorText: { textAlign: "center", color: "red", marginVertical: 10 },
+  errorText: { textAlign: "center", color: "red", marginVertical: 10 },asignadoText: {
+  fontSize: 18,         // más grande
+  fontWeight: 'bold',
+  textAlign: 'center',
+  marginTop: 20,        // espacio después del botón
+  color: '#333',
+},
 });
 
 export default FacturaDetalleScreen;

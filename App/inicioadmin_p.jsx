@@ -22,62 +22,43 @@ const AdminScreen = () => {
   useEffect(() => {
   const loadData = async () => {
     try {
-      // Simular carga de entregas EN CURSO
-      const enCursoData = [
-        {
-          id: '1',
-          titulo: 'Entrega #1',
-          estado: 'En ruta',
-          encargado: 'Carlos Méndez',
-          direccion: 'Av. Las Camelias, San Salvador',
-          hora: '10:30 AM',
-        },
-        {
-          id: '2',
-          titulo: 'Entrega #2',
-          estado: 'En ruta',
-          encargado: 'Ana López',
-          direccion: 'Col. Escalón, San Salvador',
-          hora: '11:15 AM',
-        },
-      ];
+      const rawFacturas = await AsyncStorage.getItem('facturas');
+      const rawUsers = await AsyncStorage.getItem('customUsers');
 
-      // Simular carga de entregas FINALIZADAS
-      const finalizadasData = [
-        {
-          id: '3',
-          titulo: 'Entrega #3',
-          estado: 'Entregado',
-          encargado: 'Luis Pérez',
-          direccion: 'Santa Tecla, La Libertad',
-          hora: '9:00 AM',
-          fecha: '2024-05-21',
-        },
-        {
-          id: '4',
-          titulo: 'Entrega #4',
-          estado: 'Entregado',
-          encargado: 'María Reyes',
-          direccion: 'Soyapango, San Salvador',
-          hora: '8:45 AM',
-          fecha: '2024-05-20',
-        },
-      ];
+      const facturas = rawFacturas ? JSON.parse(rawFacturas) : [];
+      const users = rawUsers ? JSON.parse(rawUsers) : [];
 
-      // Simular demora de carga
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Enriquecer las facturas con info del repartidor
+      const facturasConRepartidor = facturas.map(factura => {
+        const repartidor = users.find(u => u.email === factura.repartidorEmail);
+        return {
+          ...factura,
+          encargado: repartidor ? `${repartidor.name} ${repartidor.lastName || ''}` : 'No asignado',
+        };
+      });
+
+      const enCursoData = facturasConRepartidor.filter(f =>
+        f.status && f.status.toLowerCase() === 'en camino'
+      );
+
+      const finalizadasData = facturasConRepartidor.filter(f =>
+        f.status && ['entregado', 'finalizado'].includes(f.status.toLowerCase())
+      );
 
       setEnCurso(enCursoData);
       setFinalizadas(finalizadasData);
     } catch (error) {
-      console.error('Error al cargar entregas simuladas:', error);
+      console.error('Error al cargar facturas desde AsyncStorage:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  loadData();
-}, []);
+  const unsubscribe = navigation.addListener('focus', loadData);
+  return unsubscribe;
+}, [navigation]);
+
+
 
 const { logout } = useContext(AuthContext);
 
@@ -132,7 +113,7 @@ const handleLogout = async () => {
               <View style={styles.cardHeader}>
                 <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
                 <View style={[styles.statusBadge, styles.inProgressBadge]}>
-                  <Text style={styles.statusText}>{entrega.estado}</Text>
+                  <Text style={styles.statusText}>{entrega.status}</Text>
                 </View>
               </View>
               <View style={styles.deliveryInfo}>
@@ -140,12 +121,12 @@ const handleLogout = async () => {
                 <Text style={styles.infoText}>{entrega.encargado}</Text>
               </View>
               <View style={styles.deliveryInfo}>
-                <Icon name="map-marker" size={14} color="#555" />
-                <Text style={styles.infoText}>{entrega.direccion}</Text>
+                <Icon name="user" size={14} color="#555" />
+                 <Text style={styles.infoText}>{entrega.descripcion}</Text>
               </View>
               <View style={styles.deliveryInfo}>
                 <Icon name="clock-o" size={14} color="#555" />
-                <Text style={styles.infoText}>{entrega.hora}</Text>
+                 <Text style={styles.infoText}>{entrega.fechaEntrega}</Text>
               </View>
             </View>
           ))
@@ -155,7 +136,7 @@ const handleLogout = async () => {
               <View style={styles.cardHeader}>
                 <Text style={styles.deliveryTitle}>{entrega.titulo}</Text>
                 <View style={[styles.statusBadge, styles.completedBadge]}>
-                  <Text style={styles.statusText}>{entrega.estado}</Text>
+                 <Text style={styles.statusText}>{entrega.status}</Text>
                 </View>
               </View>
               <View style={styles.deliveryInfo}>
@@ -163,12 +144,12 @@ const handleLogout = async () => {
                 <Text style={styles.infoText}>{entrega.encargado}</Text>
               </View>
               <View style={styles.deliveryInfo}>
-                <Icon name="map-marker" size={14} color="#555" />
-                <Text style={styles.infoText}>{entrega.direccion}</Text>
+                <Icon name="user" size={14} color="#555" />
+                <Text style={styles.infoText}>{entrega.descripcion}</Text>
               </View>
               <View style={styles.deliveryInfo}>
                 <Icon name="calendar" size={14} color="#555" />
-                <Text style={styles.infoText}>{entrega.fecha} - {entrega.hora}</Text>
+               <Text style={styles.infoText}>{entrega.fechaEntrega}</Text>
               </View>
             </View>
           ))

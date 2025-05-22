@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const FinalizarEntrega = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -69,25 +69,36 @@ const FinalizarEntrega = () => {
     }
   };
 
-  const handleSubmit = () => {
-    const updatedInvoiceDetails = {
-      recipient,
-      deliveryLocation,
-      observations,
-      issueDescription,
-      image,
-      status: 'Finalizado',
-    };
+  const handleSubmit = async () => {
+    try {
+      const storedFacturas = await AsyncStorage.getItem('facturas');
+      const parsedFacturas = storedFacturas ? JSON.parse(storedFacturas) : [];
 
-    if (setInvoiceDetails) {
-      setInvoiceDetails(invoiceId, updatedInvoiceDetails);
-    }
-    if (updateDeliveryStatus) {
-      updateDeliveryStatus(invoiceId, 'Finalizado');
-    }
+      const updatedFacturas = parsedFacturas.map(f => {
+        if (f.id === invoiceId) {
+          return {
+            ...f,
+            recipient,
+            deliveryLocation,
+            observations,
+            issueDescription,
+            imagen: image,
+            status: 'Entregado', // cambia el estado
+          };
+        }
+        return f;
+      });
 
-    navigation.navigate('DetalleEntrega', { invoiceId, status: 'Finalizado' });
+      await AsyncStorage.setItem('facturas', JSON.stringify(updatedFacturas));
+
+      Alert.alert('Éxito', 'Entrega registrada exitosamente.');
+      navigation.navigate('Dashboard'); // o 'DetalleEntrega' si prefieres
+    } catch (error) {
+      console.error('Error guardando entrega:', error);
+      Alert.alert('Error', 'No se pudo guardar la entrega.');
+    }
   };
+
 
   return (
     <View style={styles.container}>

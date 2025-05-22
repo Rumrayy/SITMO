@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ErrorEntrega = () => {
   const navigation = useNavigation();
@@ -75,22 +76,55 @@ const ErrorEntrega = () => {
     }
   };
 
-  const handleSubmit = () => {
-    const updatedInvoiceDetails = {
-      issue: selectedIssue,
-      description,
-      image,
-      status: 'Cancelado',
-    };
-
-    if (setInvoiceDetails) {
-      setInvoiceDetails(invoiceId, updatedInvoiceDetails);
-    }
-    if (updateDeliveryStatus) {
-      updateDeliveryStatus(invoiceId, 'Cancelado');
+  const handleSubmit = async () => {
+    if (!selectedIssue || !description) {
+      Alert.alert('Error', 'Debe seleccionar un inconveniente y agregar una descripción.');
+      return;
     }
 
-    navigation.navigate('DetalleEntrega', { invoiceId, status: 'Cancelado' });
+    try {
+      // Actualizar factura con estado "Inconveniente"
+      const stored = await AsyncStorage.getItem('facturas');
+      const facturas = stored ? JSON.parse(stored) : [];
+
+      const actualizadas = facturas.map(f => {
+        if (f.id === invoiceId) {
+          return {
+            ...f,
+            status: 'Inconveniente',
+            errorInfo: {
+              issue: selectedIssue,
+              description,
+              image,
+              date: new Date().toLocaleDateString(),
+            }
+          };
+        }
+        return f;
+      });
+
+      await AsyncStorage.setItem('facturas', JSON.stringify(actualizadas));
+
+      // Guardar advertencia para la pantalla de advertencias
+      const advertencia = {
+        id: Date.now().toString(),
+        titulo: `Cancelación #${invoiceId}`,
+        motivo: selectedIssue,
+        fecha: new Date().toLocaleDateString(),
+      };
+
+      const savedWarnings = await AsyncStorage.getItem('advertencias');
+      const parsedWarnings = savedWarnings ? JSON.parse(savedWarnings) : [];
+
+      const nuevasAdvertencias = [...parsedWarnings, advertencia];
+      await AsyncStorage.setItem('advertencias', JSON.stringify(nuevasAdvertencias));
+
+      Alert.alert('Inconveniente registrado', 'Se ha guardado la información.');
+      navigation.navigate('Dashboard', { invoiceId, status: 'Inconveniente' });
+    } catch (error) {
+      console.error('Error al guardar inconveniente:', error);
+      Alert.alert('Error', 'No se pudo guardar el inconveniente.');
+    }
   };
 
   return (
