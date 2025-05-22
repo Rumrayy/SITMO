@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BottomNavbar from './NavBarAdmin';
 
 const facturas = [
   { id: '1', titulo: 'Factura #1', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
@@ -51,47 +52,7 @@ const FacturasScreen = ({ navigation, route }) => {
         contentContainerStyle={showFooter ? styles.listContentAdmin : styles.listContent}
       />
       
-      {showFooter && (
-        <View style={styles.bottomMenu}>
-          {userRole === 'admin' && (
-            <>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Admin')}
-              >
-                <Icon name="home" size={24} color="#333" />
-                <Text style={styles.menuText}>Inicio</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Personal')}
-              >
-                <Icon name="users" size={24} color="#333" />
-                <Text style={styles.menuText}>Personal</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          {userRole === 'admin' && (
-          <TouchableOpacity 
-            style={[styles.menuItem, styles.activeMenuItem]}
-            onPress={() => navigation.navigate('Facturas')}
-          >
-            <Icon name="truck" size={24} color="#0066cc" />
-            <Text style={[styles.menuText, styles.activeMenuText]}>Bodega</Text>
-          </TouchableOpacity>
-          )}
-          {userRole === 'admin' && (
-            <TouchableOpacity 
-              style={styles.menuItem}
-              onPress={() => navigation.navigate('Advertencia')}
-            >
-              <Icon name="exclamation-triangle" size={24} color="#333" />
-              <Text style={styles.menuText}>Alertas</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
+      <BottomNavbar />
     </View>
   );
 };

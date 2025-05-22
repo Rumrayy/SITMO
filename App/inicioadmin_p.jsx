@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator
 import Icon from 'react-native-vector-icons/FontAwesome'; 
 import { useNavigation } from '@react-navigation/native';
 import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { getConteoEntregas, getEntregasPorDisposicion } from './service/EntregaService';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useContext } from 'react';
+import { AuthContext } from '../App/AuthContext';
+import BottomNavbar from './NavBarAdmin';
 
 const AdminScreen = () => {
   const navigation = useNavigation();
@@ -18,29 +20,75 @@ const AdminScreen = () => {
     'Entregado': 3,
   };
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const conteo = await getConteoEntregas();
-        const disposiciones = conteo.map(c => c.disposicion);
+  const loadData = async () => {
+    try {
+      // Simular carga de entregas EN CURSO
+      const enCursoData = [
+        {
+          id: '1',
+          titulo: 'Entrega #1',
+          estado: 'En ruta',
+          encargado: 'Carlos Méndez',
+          direccion: 'Av. Las Camelias, San Salvador',
+          hora: '10:30 AM',
+        },
+        {
+          id: '2',
+          titulo: 'Entrega #2',
+          estado: 'En ruta',
+          encargado: 'Ana López',
+          direccion: 'Col. Escalón, San Salvador',
+          hora: '11:15 AM',
+        },
+      ];
 
-        if (disposiciones.includes('En ruta')) {
-          const enCursoData = await getEntregasPorDisposicion(mapDisposiciones['En ruta']);
-          setEnCurso(enCursoData);
-        }
-        if (disposiciones.includes('Entregado')) {
-          const finalizadasData = await getEntregasPorDisposicion(mapDisposiciones['Entregado']);
-          setFinalizadas(finalizadasData);
-        }
-      } catch (error) {
-        console.error('Error al cargar entregas:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Simular carga de entregas FINALIZADAS
+      const finalizadasData = [
+        {
+          id: '3',
+          titulo: 'Entrega #3',
+          estado: 'Entregado',
+          encargado: 'Luis Pérez',
+          direccion: 'Santa Tecla, La Libertad',
+          hora: '9:00 AM',
+          fecha: '2024-05-21',
+        },
+        {
+          id: '4',
+          titulo: 'Entrega #4',
+          estado: 'Entregado',
+          encargado: 'María Reyes',
+          direccion: 'Soyapango, San Salvador',
+          hora: '8:45 AM',
+          fecha: '2024-05-20',
+        },
+      ];
 
-    loadData();
-  }, []);
+      // Simular demora de carga
+      await new Promise(resolve => setTimeout(resolve, 500));
 
+      setEnCurso(enCursoData);
+      setFinalizadas(finalizadasData);
+    } catch (error) {
+      console.error('Error al cargar entregas simuladas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  loadData();
+}, []);
+
+const { logout } = useContext(AuthContext);
+
+const handleLogout = async () => {
+  try {
+    logout(); // si usas AuthContext
+    navigation.navigate('Login');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
+};
   return (
     <View style={styles.container}>
       {/* Mapa más grande y elevado */}
@@ -127,39 +175,7 @@ const AdminScreen = () => {
         )}
       </ScrollView>
 
-      <View style={styles.bottomMenu}>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Admin')}
-              >
-                <Icon name="home" size={24} color="#0066cc" />
-                <Text style={styles.menuText}>Inicio</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Personal')}
-              >
-                <Icon name="users" size={24} color="#333" />
-                <Text style={styles.menuText}>Personal</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.menuItem, styles.activeMenuItem]}
-                onPress={() => navigation.navigate('Facturas')}
-              >
-                <Icon name="truck" size={24} color="black" />
-                <Text style={[styles.menuText, styles.activeMenuText]}>Bodega</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Advertencia')}
-              >
-                <Icon name="exclamation-triangle" size={24} color="#333" />
-                <Text style={styles.menuText}>Alertas</Text>
-              </TouchableOpacity>
-      </View>
+      <BottomNavbar />
     </View>
   );
 };

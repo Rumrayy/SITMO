@@ -1,28 +1,53 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-
-const facturas = [
-  { id: '1', titulo: 'Factura #1', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
-  { id: '2', titulo: 'Factura #2', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
-  { id: '3', titulo: 'Factura #3', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
-  { id: '4', titulo: 'Factura #4', descripcion: 'Descripción', fechaEntrega: '15 Feb 2025' },
-];
+import BottomNavbarCustom from './NavBVarBod';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const BodegaScreen = () => {
   const navigation = useNavigation();
+  const [facturas, setFacturas] = useState([]);
 
   const handleEdit = (factura) => {
     navigation.navigate('EditarFactura', { factura });
   };
+useFocusEffect(
+  React.useCallback(() => {
+    const fetchFacturas = async () => {
+      try {
+        const storedFacturas = await AsyncStorage.getItem('facturas');
+        const parsed = storedFacturas ? JSON.parse(storedFacturas) : [];
+        setFacturas(parsed);
+      } catch (error) {
+        console.error('Error cargando facturas:', error);
+      }
+    };
 
+    fetchFacturas();
+  }, [])
+);
   const handleDelete = (id) => {
-    Alert.alert('Eliminar', '¿Deseas eliminar esta factura?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Eliminar', onPress: () => console.log(`Factura ${id} eliminada`) },
-    ]);
-  };
+  Alert.alert('Eliminar', '¿Deseas eliminar esta factura?', [
+    { text: 'Cancelar', style: 'cancel' },
+    {
+      text: 'Eliminar',
+      onPress: async () => {
+        try {
+          const storedFacturas = await AsyncStorage.getItem('facturas');
+          const parsed = storedFacturas ? JSON.parse(storedFacturas) : [];
+          const updated = parsed.filter(f => f.id !== id);
+          await AsyncStorage.setItem('facturas', JSON.stringify(updated));
+          setFacturas(updated);
+        } catch (error) {
+          console.error('Error eliminando factura:', error);
+        }
+      }
+    },
+  ]);
+};
+
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -64,27 +89,7 @@ const BodegaScreen = () => {
         />
       </View>
 
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Admin')}>
-          <Icon name="home" size={24} color="black" />
-          <Text style={styles.menuText}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Personal')}>
-          <Icon name="users" size={24} color="black" />
-          <Text style={styles.menuText}>Personal</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Bodega')}>
-          <Icon name="truck" size={24} color="black" />
-          <Text style={styles.menuText}>Bodega</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Advertencia')}>
-          <Icon name="exclamation-triangle" size={24} color="black" />
-          <Text style={styles.menuText}>Advertencias</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavbarCustom />
     </View>
   );
 };

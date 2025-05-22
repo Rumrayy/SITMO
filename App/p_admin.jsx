@@ -1,16 +1,71 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import HeaderRolesNav from './HeaderRolesAdmin';
+import BottomNavbar from './NavBarAdmin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const PersonalScreen = () => {
   const navigation = useNavigation();
 
-  const administradores = [
-    { id: '#RP_12345', nombre: 'JUANA PEREZ' },
-    { id: '#RP_12542', nombre: 'CARLO PEREZ' },
-    { id: '#RP_34521', nombre: 'MARIA MORALES' },
-  ];
+  const [admins, setAdmins] = useState([]);
+
+  const generateRandomId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let id = '';
+    for (let i = 0; i < 6; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+  };
+const handleDeleteUser = async (emailToDelete) => {
+  try {
+    const storedUsers = await AsyncStorage.getItem('customUsers');
+    const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+    const updatedUsers = users.filter(u => u.email !== emailToDelete);
+    await AsyncStorage.setItem('customUsers', JSON.stringify(updatedUsers));
+
+    // Solo actualiza la lista de admins mostrados
+    const updatedAdmins = updatedUsers
+      .filter(u => u.role === 'admin')
+      .map((u) => ({
+        ...u,
+        id: generateRandomId(),
+        estado: 'Disponible',
+      }));
+
+    setAdmins(updatedAdmins);
+  } catch (error) {
+    console.error('Error eliminando usuario:', error);
+    Alert.alert('Error', 'No se pudo eliminar el usuario');
+  }
+};
+
+  useEffect(() => {
+    const loadAdmins = async () => {
+      try {
+        const storedUsers = await AsyncStorage.getItem('customUsers');
+        const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+        const onlyAdmins = users
+          .filter(u => u.role === 'admin')
+          .map(u => ({
+            ...u,
+            id: generateRandomId(),
+            estado: 'Disponible',
+          }));
+
+        setAdmins(onlyAdmins);
+      } catch (error) {
+        console.error('Error cargando administradores:', error);
+      }
+    };
+
+    loadAdmins();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -20,28 +75,29 @@ const PersonalScreen = () => {
         placeholderTextColor="#999"
       />
 
-      <View style={styles.rolesContainer}>
-        <TouchableOpacity style={[styles.roleItem, styles.roleActive]}>
-          <Text style={styles.roleText}>Admin</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.roleItem}>
-          <Text style={styles.roleText}>Motorista</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.roleItem}>
-          <Text style={styles.roleText}>Bodega</Text>
-        </TouchableOpacity>
-      </View>
+       <HeaderRolesNav activeRole="Admin" />
 
       <Text style={styles.sectionTitle}>Lista de Administradores</Text>
       
       <ScrollView style={styles.listContainer}>
-        {administradores.map((admin, index) => (
+        {admins.map((admin, index) => (
           <View key={index} style={styles.listItem}>
             <View style={styles.listContent}>
-              <Text style={styles.listName}>{admin.nombre}</Text>
+              <Text style={styles.listName}>{admin.name || admin.username}</Text>
               <Text style={styles.listId}>ID: {admin.id}</Text>
+              <Text style={styles.listId}>Teléfono: {admin.phone}</Text>
             </View>
-            <TouchableOpacity style={styles.deleteButton}>
+            <TouchableOpacity style={styles.deleteButton}
+            onPress={() =>
+                Alert.alert(
+                  'Confirmar eliminación',
+                  `¿Seguro que deseas eliminar a ${admin.name}?`,
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Eliminar', style: 'destructive', onPress: () => handleDeleteUser(admin.email) }
+                  ]
+                )
+              }>
               <Icon name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
@@ -57,39 +113,7 @@ const PersonalScreen = () => {
         <Text style={styles.newButtonText}>Nuevo</Text>
       </TouchableOpacity>
 
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Admin')}
-        >
-          <Icon name="home" size={24} color="black" />
-          <Text style={styles.menuText}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Personal')}
-        >
-          <Icon name="users" size={24} color="#0066cc" />
-          <Text style={styles.menuText}>Personal</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Facturas')}
-        >
-          <Icon name="truck" size={24} color="black" />
-          <Text style={styles.menuText}>Bodega</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Advertencia')}
-        >
-          <Icon name="exclamation-triangle" size={24} color="black" />
-          <Text style={styles.menuText}>Advertencias</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavbar />
     </View>
   );
 };

@@ -38,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.clear();
+    await AsyncStorage.multiRemove(['userToken', 'userEmail', 'userRole']);
     setUserToken(null);
   };
 

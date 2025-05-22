@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import SHA256 from 'crypto-js/sha256';
 
 const NuevoUsuarioScreen = () => {
   const navigation = useNavigation();
@@ -43,11 +45,57 @@ const NuevoUsuarioScreen = () => {
     return true;
   };
 
-  const handleCreateUser = () => {
-    if (!validatePhone()) return;
-    console.log('Usuario creado:', { firstName, lastName, email, tempPassword, role, username, phone });
+const handleCreateUser = async () => {
+  if (!validatePhone()) return;
+
+  if (!firstName || !lastName || !email || !tempPassword || !role || !username) {
+    Alert.alert('Error', 'Por favor completa todos los campos');
+    return;
+  }
+
+  try {
+    const hashedPassword = SHA256(tempPassword).toString();
+    const newUser = {
+      email,
+      password: hashedPassword,
+      name: `${firstName} ${lastName}`,
+      username,
+      role,
+      phone,
+      screen:
+        role === 'admin'
+          ? 'Admin'
+          : role === 'bodega'
+          ? 'Bodega'
+          : role === 'motorista'
+          ? 'Dashboard'
+          : 'Login',
+      pendientes: [],
+      realizadas: [],
+      entregas: [],
+      inconcenientes:[],
+    };
+
+    const storedUsers = await AsyncStorage.getItem('customUsers');
+    const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+    const alreadyExists = users.some(u => u.email === email);
+    if (alreadyExists) {
+      Alert.alert('Error', 'Ya existe un usuario con este correo');
+      return;
+    }
+
+    users.push(newUser);
+    await AsyncStorage.setItem('customUsers', JSON.stringify(users));
+
     Alert.alert('Éxito', 'Usuario creado exitosamente');
-  };
+    navigation.goBack();
+  } catch (error) {
+    console.error('Error creando usuario:', error);
+    Alert.alert('Error', 'No se pudo crear el usuario');
+  }
+};
+
 
   const handleCancel = () => {
     navigation.goBack();
@@ -167,25 +215,29 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   input: {
-    height: 36,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    marginBottom: 10,
-    fontSize: 13,
-  },
-  pickerContainer: {
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    marginBottom: 12,
-    overflow: 'hidden',
-  },
-  picker: {
-    height: 36,
-    fontSize: 13,
-  },
+  height: 48, 
+  borderColor: '#ccc',
+  borderWidth: 1,
+  borderRadius: 6,
+  paddingHorizontal: 12,
+  marginBottom: 12,
+  fontSize: 15, 
+},
+
+pickerContainer: {
+  borderColor: '#ccc',
+  borderWidth: 1,
+  borderRadius: 6,
+  marginBottom: 12,
+  overflow: 'hidden',
+  height: 55, 
+  justifyContent: 'center',
+},
+picker: {
+  height: 50,
+  color: '#000', 
+},
+
   buttonStack: {
     marginTop: 10,
   },

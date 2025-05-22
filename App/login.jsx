@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext  } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SHA256 from 'crypto-js/sha256';
-import { validarSesion } from './service/LoginService';
 import { AuthContext } from '../App/AuthContext';
 const validUsers = {
   'admin@carosa.com': { 
@@ -11,18 +10,18 @@ const validUsers = {
     role: 'admin', 
     screen: 'Admin' 
   },
-  'bodega@carosa.com': { 
-    password: 'bodega123', 
-    name: 'Bodega',
-    role: 'bodega',
-    screen: 'Facturas'
-  },
-  'repartidor@carosa.com': { 
-    password: 'repart123', 
-    name: 'Repartidor',
-    role: 'Repartidor',
-    screen: 'Repartidor'
-  }
+  // 'bodega@carosa.com': { 
+  //   password: 'bodega123', 
+  //   name: 'Bodega',
+  //   role: 'bodega',
+  //   screen: 'Facturas'
+  // },
+  // 'repartidor@carosa.com': { 
+  //   password: 'repart123', 
+  //   name: 'Repartidor',
+  //   role: 'Repartidor',
+  //   screen: 'Repartidor'
+  // }
 };
 
 const LoginScreen = ({ navigation }) => {
@@ -33,52 +32,54 @@ const LoginScreen = ({ navigation }) => {
   const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Por favor completa todos los campos');
+  if (!email || !password) {
+    Alert.alert('Error', 'Por favor completa todos los campos');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    // Simular hashing
+    const hashedPassword = SHA256(password).toString();
+
+    // Verifica primero si el usuario es uno de los fijos
+    const fixedUser = validUsers[email];
+    if (fixedUser && SHA256(fixedUser.password).toString() === hashedPassword) {
+      await AsyncStorage.multiSet([
+        ['userToken', 'authenticated'],
+        ['userEmail', email],
+        ['userRole', fixedUser.role],
+      ]);
+      login('authenticated');
+      navigation.navigate(fixedUser.screen);
       return;
     }
 
-    setLoading(true);
+    // Si no es fijo, busca en los usuarios creados
+    const storedUsers = await AsyncStorage.getItem('customUsers');
+    const parsedUsers = storedUsers ? JSON.parse(storedUsers) : [];
 
-    try {
-      const hashedPassword = SHA256(password).toString();
-      const loginData = {
-        Correo: email,         
-        Contrasena: hashedPassword,
-      };
-  
-      const data = await validarSesion(loginData);
-      if (data.DebeCambiarContrasena) {
-        await AsyncStorage.multiSet([
-          ['userEmail', data.nombreUsuario],
-          ['userId', data.id.toString()],
-        ]);
-        Alert.alert('Atención', data.mensaje || 'Debe cambiar su contraseña');
-        navigation.navigate('ChangePassword');
-      } else {
-        await login(data.token);
-        Alert.alert('Éxito', `Bienvenido ${data.nombreUsuario}`);
-        // Redirigir por rolId
-        let screen;
-        switch (data.rolId) {
-          case 1: screen = 'Admin'; break;
-          case 2: screen = 'Facturas'; break;
-          case 3: screen = 'Repartidor'; break;
-          default: screen = 'Login'; break;
-        }
-        navigation.navigate(screen);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      Alert.alert('Error', 'Credenciales incorrectas o problema del servidor');
-    } finally {
-      setLoading(false);
+    const userFound = parsedUsers.find(u => u.email === email && u.password === hashedPassword);
+    if (userFound) {
+      await AsyncStorage.multiSet([
+        ['userToken', 'authenticated'],
+        ['userEmail', email],
+        ['userRole', userFound.role],
+      ]);
+      login('authenticated');
+      navigation.navigate(userFound.screen);
+    } else {
+      Alert.alert('Error', 'Credenciales incorrectas');
     }
-    // await AsyncStorage.setItem('userToken', data.token);
-    // await AsyncStorage.setItem('userEmail', data.nombreUsuario);
-    // await AsyncStorage.setItem('userRole', data.rolId.toString());
-    // await AsyncStorage.setItem('userId', data.id.toString());
-  };
+  } catch (error) {
+    console.error('Login error:', error);
+    Alert.alert('Error', 'Ocurrió un error al iniciar sesión');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -92,9 +93,7 @@ const LoginScreen = ({ navigation }) => {
         if (userToken[1] === 'authenticated' && userEmail[1] && userRole[1]) {
           if (validUsers[userEmail[1]] && validUsers[userEmail[1]].role === userRole[1]) {
             navigation.navigate(validUsers[userEmail[1]].screen);
-          } else {
-            await AsyncStorage.clear();
-          }
+          } 
         }
       } catch (error) {
         console.error('Error al verificar sesión:', error);

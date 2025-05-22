@@ -24,19 +24,51 @@ import ErrorEntregaScreen from '../App/cancelar_entrega_form';
 import Dashboard from '../App/dashboard_repartidor';
 import NuevaFacturaScreen from '../App/nuevafactura';
 import BodegaScreen from '../App/bod_admin';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNavigationContainerRef } from '@react-navigation/native';
 
-const Stack = createStackNavigator();
+export const navigationRef = createNavigationContainerRef();
+const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const { userToken, isLoading } = useContext(AuthContext);
+  const [initializing, setInitializing] = useState(true);
 
-  if (isLoading) {
-    return null; 
+  useEffect(() => {
+    const redirectBasedOnRole = async () => {
+      if (!userToken) {
+        setInitializing(false);
+        return;
+      }
+
+      const userRole = await AsyncStorage.getItem('userRole');
+
+      switch (userRole) {
+        case 'admin':
+          navigationRef.current?.navigate('Admin');
+          break;
+        case 'motorista':
+          navigationRef.current?.navigate('Dashboard');
+          break;
+        case 'bodega':
+          navigationRef.current?.navigate('Bodega');
+          break;
+        default:
+          navigationRef.current?.navigate('Login');
+      }
+
+      setInitializing(false);
+    };
+
+    redirectBasedOnRole();
+  }, [userToken]);
+
+  if (isLoading || initializing) {
+    return null; // o un loader
   }
-
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName={userToken ? 'Admin' : 'Login'}>
+    <NavigationContainer ref={navigationRef}>
+     <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!userToken ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />

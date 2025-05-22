@@ -1,20 +1,72 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import HeaderRolesNav from './HeaderRolesAdmin';
+import BottomNavbar from './NavBarAdmin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const PersonalBodegaScreen = () => {
   const navigation = useNavigation();
 
-  const administradores = [
-    { id: '#RP_12345', nombre: 'JUANA PEREZ' },
-    { id: '#RP_12542', nombre: 'CARLO PEREZ' },
-    { id: '#RP_34521', nombre: 'MARIA MORALES' },
-  ];
+  const [bodegeros, setBodegeros] = useState([]);
+  const generateRandomId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 6; i++) {
+    id += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return id;
+};
+const handleDeleteUser = async (emailToDelete) => {
+  try {
+    const storedUsers = await AsyncStorage.getItem('customUsers');
+    const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+    const updatedUsers = users.filter(u => u.email !== emailToDelete);
+
+    await AsyncStorage.setItem('customUsers', JSON.stringify(updatedUsers));
+
+    // Actualiza la lista de motoristas filtrando los nuevos datos
+    const updatedMotoristas = updatedUsers
+      .filter(u => u.role === 'bodega')
+      .map((u) => ({
+        ...u,
+        id: generateRandomId(),
+        ubicacion: { lat: 13.982521295694758, lng: -89.54769904696455 }
+      }));
+
+    setBodegeros(updatedMotoristas);
+  } catch (error) {
+    console.error('Error eliminando usuario:', error);
+  }
+};
+useEffect(() => {
+  const loadbodegeros = async () => {
+    try {
+      const storedUsers = await AsyncStorage.getItem('customUsers');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+      const onlybodegeros = users
+        .filter(u => u.role === 'bodega')
+        .map((u, index) => ({
+          ...u,
+          id: generateRandomId(),
+          ubicacion:{ lat: 13.982521295694758, lng: -89.54769904696455 }
+        }));
+
+      setBodegeros(onlybodegeros);
+    } catch (error) {
+      console.error('Error cargando bodegeros:', error);
+    }
+  };
+
+  loadbodegeros();
+}, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Personal</Text>
 
       <TextInput
         style={styles.searchInput}
@@ -22,72 +74,44 @@ const PersonalBodegaScreen = () => {
         placeholderTextColor="#999"
       />
 
-      <View style={styles.rolesContainer}>
-        <TouchableOpacity style={styles.roleItem}>
-          <Text style={styles.roleText}>Admin</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.roleItem}>
-          <Text style={styles.roleText}>Motorista</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.roleItem, styles.roleActive]}>
-          <Text style={styles.roleText}>Bodega</Text>
-        </TouchableOpacity>
-      </View>
+     <HeaderRolesNav activeRole="Bodega" />
 
       <Text style={styles.sectionTitle}>Lista de Personal en Bodega</Text>
       
       <ScrollView style={styles.listContainer}>
-        {administradores.map((admin, index) => (
+        {bodegeros.map((admin, index) => (
           <View key={index} style={styles.listItem}>
             <View style={styles.listContent}>
-              <Text style={styles.listName}>{admin.nombre}</Text>
+              <Text style={styles.listName}>{admin.name}</Text>
               <Text style={styles.listId}>ID: {admin.id}</Text>
+              <Text style={styles.listId}>Correo: {admin.email}</Text>
+              <Text style={styles.listId}>Telefono: {admin.phone}</Text>
             </View>
-            <TouchableOpacity style={styles.deleteButton}>
+            <TouchableOpacity style={styles.deleteButton}
+            onPress={() =>
+                Alert.alert(
+                  'Confirmar eliminación',
+                  `¿Seguro que deseas eliminar a ${admin.name}?`,
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Eliminar', style: 'destructive', onPress: () => handleDeleteUser(admin.email) }
+                  ]
+                )
+              }>
               <Icon name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
         ))}
       </ScrollView>
       
-      <TouchableOpacity style={styles.newButton}>
-        <Icon name="plus" size={18} color="#FFF" style={styles.newButtonIcon} />
-        <Text style={styles.newButtonText}>Nuevo Administrador</Text>
+      <TouchableOpacity
+        style={styles.newButton}
+        onPress={() => navigation.navigate('NuevoUsuario')}
+      >
+        <Text style={styles.newButtonText}>Nuevo</Text>
       </TouchableOpacity>
 
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Admin')}
-        >
-          <Icon name="home" size={24} color="black" />
-          <Text style={styles.menuText}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Personal')}
-        >
-          <Icon name="users" size={24} color="black" />
-          <Text style={styles.menuText}>Personal</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Facturas')}
-        >
-          <Icon name="truck" size={24} color="black" />
-          <Text style={styles.menuText}>Bodega</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('Advertencia')}
-        >
-          <Icon name="exclamation-triangle" size={24} color="black" />
-          <Text style={styles.menuText}>Advertencias</Text>
-        </TouchableOpacity>
-      </View>
+       <BottomNavbar />
     </View>
   );
 };

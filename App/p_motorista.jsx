@@ -1,40 +1,80 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import HeaderRolesNav from './HeaderRolesAdmin';
+import BottomNavbar from './NavBarAdmin';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const PersonalMotoristaScreen = () => {
-  
-  const motoristas = [
-    {
-      id: '#RP_12345',
-      nombre: 'Juana Pérez',
-      estado: 'Disponible',
-      descripcion: 'Motorista con 2 años de experiencia.',
-      entregasHoy: 5,
-      tiempoPromedio: '25 min',
-    },
-    {
-      id: '#RP_12542',
-      nombre: 'Carlo Pérez',
-      estado: 'En entrega',
-      descripcion: 'Motorista con 1 año de experiencia.',
-      entregasHoy: 9,
-      tiempoPromedio: '30 min',
-    },
-    {
-      id: '#RP_12542',
-      nombre: 'Carlo Pérez',
-      estado: 'En entrega',
-      descripcion: 'Motorista con 1 año de experiencia.',
-      entregasHoy: 9,
-      tiempoPromedio: '30 min',
-    },
-    
-  ];
+  const navigation = useNavigation();
+
+  const [motoristas, setMotoristas] = useState([]);
+  const generateRandomId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 6; i++) {
+    id += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return id;
+};
+const handleDeleteUser = async (emailToDelete) => {
+  try {
+    const storedUsers = await AsyncStorage.getItem('customUsers');
+    const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+    const updatedUsers = users.filter(u => u.email !== emailToDelete);
+
+    await AsyncStorage.setItem('customUsers', JSON.stringify(updatedUsers));
+
+    // Actualiza la lista de motoristas filtrando los nuevos datos
+    const updatedMotoristas = updatedUsers
+      .filter(u => u.role === 'motorista')
+      .map((u) => ({
+        ...u,
+        id: generateRandomId(),
+        estado: 'Disponible',
+        entregasHoy: 0,
+        tiempoPromedio: '0 min',
+        ubicacion: { lat: 13.982521295694758, lng: -89.54769904696455 }
+      }));
+
+    setMotoristas(updatedMotoristas);
+  } catch (error) {
+    console.error('Error eliminando usuario:', error);
+  }
+};
+
+useEffect(() => {
+  const loadMotoristas = async () => {
+    try {
+      const storedUsers = await AsyncStorage.getItem('customUsers');
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+      const onlyMotoristas = users
+        .filter(u => u.role === 'motorista')
+        .map((u, index) => ({
+          ...u,
+          id: generateRandomId(),
+          estado: 'Disponible',
+          entregasHoy: 0,
+          tiempoPromedio: '0 min',
+          ubicacion:{ lat: 13.982521295694758, lng: -89.54769904696455 }
+        }));
+
+      setMotoristas(onlyMotoristas);
+    } catch (error) {
+      console.error('Error cargando motoristas:', error);
+    }
+  };
+
+  loadMotoristas();
+}, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Personal</Text>
+
 
       <TextInput
         style={styles.searchInput}
@@ -42,17 +82,7 @@ const PersonalMotoristaScreen = () => {
         placeholderTextColor="#999"
       />
 
-      <View style={styles.rolesContainer}>
-        <TouchableOpacity style={styles.roleItem} >
-          <Text style={styles.roleText}>Admin</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.roleItem, styles.roleActive]}>
-          <Text style={styles.roleText}>Motorista</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.roleItem}>
-          <Text style={styles.roleText}>Bodega</Text>
-        </TouchableOpacity>
-      </View>
+      <HeaderRolesNav activeRole="Motorista" />
 
 
       <Text style={styles.sectionTitle}>Lista de Motoristas</Text>
@@ -60,12 +90,11 @@ const PersonalMotoristaScreen = () => {
         {motoristas.map((motorista, index) => (
           <View key={index} style={styles.motoristaItem}>
             <View style={styles.nameStatusContainer}>
-              <Text style={styles.motoristaName}>{motorista.nombre}</Text>
+              <Text style={styles.motoristaName}>{motorista.name || motorista.username}</Text>
               <Text style={styles.motoristaStatus}>{motorista.estado}</Text>
             </View>
             <Text style={styles.motoristaId}>ID: {motorista.id}</Text>
-            <Text style={styles.motoristaId}>{motorista.descripcion}</Text>
-
+            <Text style={styles.motoristaId}>Correo: {motorista.email}</Text>
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
                 <Text style={styles.statNumber}>{motorista.entregasHoy}</Text>
@@ -82,51 +111,32 @@ const PersonalMotoristaScreen = () => {
                 <Icon name="map-marker" size={16} color="#fff" />
                 <Text style={styles.locationButtonText}>Ver Ubicación</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
+              <TouchableOpacity style={styles.actionButton}  
+             onPress={() =>
+                Alert.alert(
+                  'Confirmar eliminación',
+                  `¿Seguro que deseas eliminar a ${motorista.name}?`,
+                  [
+                    { text: 'Cancelar', style: 'cancel' },
+                    { text: 'Eliminar', style: 'destructive', onPress: () => handleDeleteUser(motorista.email) }
+                  ]
+                )
+              }
+              >
                 <Text style={styles.actionButtonText}>Eliminar</Text>
               </TouchableOpacity>
             </View>
           </View>
         ))}
       </ScrollView>
-      <TouchableOpacity style={styles.newButton}>
+      <TouchableOpacity
+        style={styles.newButton}
+        onPress={() => navigation.navigate('NuevoUsuario')}
+      >
         <Text style={styles.newButtonText}>Nuevo</Text>
       </TouchableOpacity>
 
-      
-            <View style={styles.bottomMenu}>
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Admin')}
-              >
-                <Icon name="home" size={24} color="black" />
-                <Text style={styles.menuText}>Inicio</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Personal')}
-              >
-                <Icon name="users" size={24} color="black" />
-                <Text style={styles.menuText}>Personal</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Facturas')}
-              >
-                <Icon name="truck" size={24} color="black" />
-                <Text style={styles.menuText}>Facturas</Text>
-              </TouchableOpacity>
-      
-              <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={() => navigation.navigate('Advertencia')}
-              >
-                <Icon name="exclamation-triangle" size={24} color="black" />
-                <Text style={styles.menuText}>Advertencias</Text>
-              </TouchableOpacity>
-            </View>
+            <BottomNavbar />
           </View>
         );
       };

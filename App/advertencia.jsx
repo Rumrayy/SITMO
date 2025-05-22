@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-
+import BottomNavbar from './NavBarAdmin';
 const advertencias = [
   { id: '1', titulo: 'Cancelación #1', motivo: 'Cliente no disponible', fecha: '28 Abr 2025' },
   { id: '2', titulo: 'Cancelación #2', motivo: 'Dirección incorrecta', fecha: '27 Abr 2025' },
@@ -43,27 +43,7 @@ const AdvertenciaScreen = () => {
         contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
       />
 
-      <View style={styles.bottomMenu}>
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Admin')}>
-          <Icon name="home" size={24} color="black" />
-          <Text style={styles.menuText}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Personal')}>
-          <Icon name="users" size={24} color="black" />
-          <Text style={styles.menuText}>Personal</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Bodega')}>
-          <Icon name="truck" size={24} color="black" />
-          <Text style={styles.menuText}>Bodega</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Advertencia')}>
-          <Icon name="exclamation-triangle" size={24} color="black" />
-          <Text style={styles.menuText}>Advertencias</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNavbar />
     </View>
   );
 };
