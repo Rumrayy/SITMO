@@ -5,47 +5,76 @@ import { useNavigation } from '@react-navigation/native';
 import { useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../App/AuthContext';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+// 1. Define el tipo para las rutas (debe coincidir con tu RootStackParamList principal)
+type RootStackParamList = {
+  Login: undefined;
+  Admin: undefined;
+  Personal: undefined;
+  Bodega: undefined;
+  Advertencia: undefined;
+  // Agrega aquí todas las rutas que uses en tu navegación
+};
+
+// 2. Crea el tipo para la navegación
+type BottomNavbarNavigationProp = StackNavigationProp<RootStackParamList>;
 
 const BottomNavbar = () => {
-  const navigation = useNavigation();
-const { logout } = useContext(AuthContext);
+  // 3. Tipa el hook useNavigation
+  const navigation = useNavigation<BottomNavbarNavigationProp>();
+  const { logout } = useContext(AuthContext);
 
-const handleLogout = async () => {
-  try {
-    logout(); 
-    navigation.navigate('Login');
-  } catch (error) {
-    console.error('Error al cerrar sesión:', error);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await logout(); 
+      navigation.navigate("Login");
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
   return (
     <View style={styles.bottomMenu}>
-      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Admin')}>
+      <TouchableOpacity 
+        style={styles.menuItem} 
+        onPress={() => navigation.navigate('Admin')}
+      >
         <Icon name="home" size={24} color="black" />
         <Text style={styles.menuText}>Inicio</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Personal')}>
-        <Icon name="users" size={24} color="#0066cc" />
+      <TouchableOpacity 
+        style={styles.menuItem} 
+        onPress={() => navigation.navigate('Personal')}
+      >
+        <Icon name="users" size={24} color="black" />
         <Text style={styles.menuText}>Personal</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Facturas')}>
+      <TouchableOpacity 
+        style={styles.menuItem} 
+        onPress={() => navigation.navigate('Bodega')}
+      >
         <Icon name="truck" size={24} color="black" />
         <Text style={styles.menuText}>Bodega</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Advertencia')}>
+      <TouchableOpacity 
+        style={styles.menuItem} 
+        onPress={() => navigation.navigate('Advertencia')}
+      >
         <Icon name="exclamation-triangle" size={24} color="black" />
         <Text style={styles.menuText}>Alertas</Text>
       </TouchableOpacity>
+      
       <TouchableOpacity 
-                style={styles.menuItem}
-                onPress={handleLogout}
-              >
-                <Icon name="sign-out" size={24} color="#d11a2a" />
-                <Text style={[styles.menuText, { color: '#d11a2a' }]}>Salir</Text>
-              </TouchableOpacity>
+        style={styles.menuItem}
+        onPress={handleLogout}
+      >
+        <Icon name="sign-out" size={24} color="#d11a2a" />
+        <Text style={[styles.menuText, { color: '#d11a2a' }]}>Salir</Text>
+      </TouchableOpacity>
     </View>
   );
 };

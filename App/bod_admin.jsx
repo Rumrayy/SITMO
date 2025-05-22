@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-import BottomNavbarCustom from './NavBVarBod';
+import BottomNavbarCustom from './NavBarAdmin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -13,8 +13,9 @@ const BodegaScreen = () => {
   const handleEdit = (factura) => {
     navigation.navigate('EditarFactura', { factura });
   };
-useFocusEffect(
+  useFocusEffect(
   React.useCallback(() => {
+    
     const fetchFacturas = async () => {
       try {
         const storedFacturas = await AsyncStorage.getItem('facturas');

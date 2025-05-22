@@ -1,27 +1,75 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity
+  Button
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { useNavigation } from '@react-navigation/native';
-import BottomNavbar from './NavBarAdmin';
-const advertencias = [
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import NavBarAdinBog from './NavBarAdminBog';
+
+const advertenciasMock = [
   { id: '1', titulo: 'Cancelación #1', motivo: 'Cliente no disponible', fecha: '28 Abr 2025' },
   { id: '2', titulo: 'Cancelación #2', motivo: 'Dirección incorrecta', fecha: '27 Abr 2025' },
   { id: '3', titulo: 'Cancelación #3', motivo: 'Pedido duplicado', fecha: '25 Abr 2025' },
-  { id: '4', titulo: 'Cancelación #4', motivo: 'Vehículo averiado', fecha: '24 Abr 2025' },
-  { id: '5', titulo: 'Cancelación #5', motivo: 'Problemas climáticos', fecha: '23 Abr 2025' },
-  { id: '6', titulo: 'Cancelación #6', motivo: 'Cliente canceló el pedido', fecha: '22 Abr 2025' },
-  { id: '7', titulo: 'Cancelación #7', motivo: 'Entrega reprogramada por cliente', fecha: '21 Abr 2025' },
-  { id: '8', titulo: 'Cancelación #8', motivo: 'Problemas en la ruta de entrega', fecha: '20 Abr 2025' },
 ];
 
 const AdvertenciaScreen = () => {
-  const navigation = useNavigation();
+  const [advertencias, setAdvertencias] = useState([]);
+
+  useEffect(() => {
+    cargarAdvertencias();
+  }, []);
+
+  const cargarAdvertencias = async () => {
+    try {
+      const json = await AsyncStorage.getItem('advertencias');
+      const advertenciasGuardadas = json ? JSON.parse(json) : [];
+
+      const todasAdvertencias = [...advertenciasMock];
+
+      advertenciasGuardadas.forEach((guardada) => {
+        if (!todasAdvertencias.find((a) => a.id === guardada.id)) {
+          todasAdvertencias.push(guardada);
+        }
+      });
+
+      setAdvertencias(todasAdvertencias);
+    } catch (error) {
+      console.error('Error cargando advertencias del almacenamiento:', error);
+    }
+  };
+
+  const guardarAdvertenciaAutoId = async (titulo, motivo, fecha) => {
+    try {
+      const data = await AsyncStorage.getItem('advertencias');
+      const advertenciasAlmacenadas = data ? JSON.parse(data) : [];
+
+      const allAdvertencias = [...advertenciasMock, ...advertenciasAlmacenadas];
+      const maxId = allAdvertencias.reduce((max, adv) => {
+        const idNum = parseInt(adv.id);
+        return idNum > max ? idNum : max;
+      }, 0);
+      const nuevoId = (maxId + 1).toString();
+
+      const nuevaAdvertencia = {
+        id: nuevoId,
+        titulo,
+        motivo,
+        fecha,
+      };
+
+      const nuevasAdvertencias = [...advertenciasAlmacenadas, nuevaAdvertencia];
+      await AsyncStorage.setItem('advertencias', JSON.stringify(nuevasAdvertencias));
+      setAdvertencias((prev) => [...prev, nuevaAdvertencia]);
+      console.log('Advertencia guardada con ID', nuevoId);
+    } catch (error) {
+      console.error('Error guardando advertencia:', error);
+    }
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -40,10 +88,11 @@ const AdvertenciaScreen = () => {
         data={advertencias}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
       />
 
-      <BottomNavbar />
+
+      <NavBarAdinBog />
     </View>
   );
 };
@@ -76,22 +125,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#721c24',
     marginTop: 4,
-  },
-  bottomMenu: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 12,
-    backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
-  },
-  menuItem: {
-    alignItems: 'center',
-  },
-  menuText: {
-    fontSize: 12,
-    marginTop: 4,
-    color: '#333',
   },
 });
 

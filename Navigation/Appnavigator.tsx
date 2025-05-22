@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useContext  } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import React, { useEffect, useState, useContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthContext } from '../App/AuthContext';
 
 // Importar pantallas
@@ -24,11 +24,37 @@ import ErrorEntregaScreen from '../App/cancelar_entrega_form';
 import Dashboard from '../App/dashboard_repartidor';
 import NuevaFacturaScreen from '../App/nuevafactura';
 import BodegaScreen from '../App/bod_admin';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createNavigationContainerRef } from '@react-navigation/native';
+import EditarFactura from '../App/EditarFactura';
 
-export const navigationRef = createNavigationContainerRef();
-const Stack = createNativeStackNavigator();
+// 1. Definir los tipos de rutas
+type RootStackParamList = {
+  Login: undefined;
+  ChangePassword: undefined;
+  Admin: undefined;
+  Personal: undefined;
+  PersonalBodega: undefined;
+  PersonalMotorista: undefined;
+  NuevoUsuario: undefined;
+  Ubicacion: undefined;
+  Bodega: undefined;
+  Advertencia: undefined;
+  AsignarRepartidor: undefined;
+  Mapa: undefined;
+  Facturas: undefined;
+  FacturaDetalle: undefined;
+  DetalleEntrega: undefined;
+  FinalizarEntrega: undefined;
+  ErrorEntrega: undefined;
+  Dashboard: undefined;
+  NuevaFactura: undefined;
+  EditarFactura: undefined;
+};
+
+// 2. Crear la referencia de navegación CORRECTAMENTE
+export const navigationRef = React.createRef<NavigationContainerRef<RootStackParamList>>();
+
+// 3. Crear el Stack Navigator con tipos
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
   const { userToken, isLoading } = useContext(AuthContext);
@@ -43,18 +69,21 @@ const AppNavigator = () => {
 
       const userRole = await AsyncStorage.getItem('userRole');
 
-      switch (userRole) {
-        case 'admin':
-          navigationRef.current?.navigate('Admin');
-          break;
-        case 'motorista':
-          navigationRef.current?.navigate('Dashboard');
-          break;
-        case 'bodega':
-          navigationRef.current?.navigate('Bodega');
-          break;
-        default:
-          navigationRef.current?.navigate('Login');
+      // Navegación segura con verificación
+      if (navigationRef.current) {
+        switch (userRole) {
+          case 'admin':
+            navigationRef.current.navigate('Admin');
+            break;
+          case 'motorista':
+            navigationRef.current.navigate('Dashboard');
+            break;
+          case 'bodega':
+            navigationRef.current.navigate('Facturas');
+            break;
+          default:
+            navigationRef.current.navigate('Login');
+        }
       }
 
       setInitializing(false);
@@ -66,9 +95,10 @@ const AppNavigator = () => {
   if (isLoading || initializing) {
     return null; // o un loader
   }
+
   return (
     <NavigationContainer ref={navigationRef}>
-     <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!userToken ? (
           <>
             <Stack.Screen name="Login" component={LoginScreen} />
@@ -77,6 +107,7 @@ const AppNavigator = () => {
         ) : (
           <>
             {/* Pantallas autenticadas aquí */}
+            <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Admin" component={AdminScreen} />
             <Stack.Screen name="Personal" component={PersonalScreen} options={{ title: 'Personal' }} />
             <Stack.Screen name="PersonalBodega" component={PersonalBodegaScreen} options={{ title: 'Personal Bodega' }} />
@@ -94,6 +125,9 @@ const AppNavigator = () => {
             <Stack.Screen name="ErrorEntrega" component={ErrorEntregaScreen} options={{ title: 'Error de Entrega' }} />
             <Stack.Screen name="Dashboard" component={Dashboard} options={{ title: 'Dashboard' }} />
             <Stack.Screen name="NuevaFactura" component={NuevaFacturaScreen} options={{ title: 'Nueva Factura' }} />
+            <Stack.Screen name="EditarFactura" component={EditarFactura} options={{ title: 'Editar Factura' }} />
+            
+
           </>
         )}
       </Stack.Navigator>
@@ -102,4 +136,3 @@ const AppNavigator = () => {
 };
 
 export default AppNavigator;
-

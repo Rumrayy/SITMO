@@ -79,30 +79,40 @@ const LoginScreen = ({ navigation }) => {
     setLoading(false);
   }
 };
+useEffect(() => {
+  const checkSession = async () => {
+    try {
+      const [userToken, userEmail, userRole] = await AsyncStorage.multiGet([
+        'userToken',
+        'userEmail',
+        'userRole'
+      ]);
 
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const [userToken, userEmail, userRole] = await AsyncStorage.multiGet([
-          'userToken',
-          'userEmail',
-          'userRole'
-        ]);
-        
-        if (userToken[1] === 'authenticated' && userEmail[1] && userRole[1]) {
-          if (validUsers[userEmail[1]] && validUsers[userEmail[1]].role === userRole[1]) {
-            navigation.navigate(validUsers[userEmail[1]].screen);
-          } 
+      if (userToken[1] === 'authenticated' && userEmail[1] && userRole[1]) {
+        // Primero busca en los fijos
+        if (validUsers[userEmail[1]] && validUsers[userEmail[1]].role === userRole[1]) {
+          navigation.navigate(validUsers[userEmail[1]].screen);
+          return;
         }
-      } catch (error) {
-        console.error('Error al verificar sesión:', error);
-        await AsyncStorage.clear();
+
+        // Luego busca en customUsers
+        const storedUsers = await AsyncStorage.getItem('customUsers');
+        const parsedUsers = storedUsers ? JSON.parse(storedUsers) : [];
+
+        const user = parsedUsers.find(u => u.email === userEmail[1] && u.role === userRole[1]);
+        if (user) {
+          navigation.navigate(user.screen);
+        }
       }
-    };
-    
-    checkSession();
-  }, []);
+    } catch (error) {
+      console.error('Error al verificar sesión:', error);
+      await AsyncStorage.clear();
+    }
+  };
+
+  checkSession();
+}, []);
+
 
   return (
     <View style={styles.container}>
